@@ -19,7 +19,7 @@ use App\Http\Controllers\ArmadosController;
 */
 Route::post('login', 'App\Http\Controllers\UserController@authenticate');
 
-Route::group(['middleware' => 'api'], function ($router) {
+Route::group(['middleware' => 'api',['cors']], function ($router) {
     Route::post('pruebas','App\Http\Controllers\CotizacionesController@index');
     Route::post('cyaquery','App\Http\Controllers\UserController@index');
     // Route::post('cyaadd','App\Http\Controllers\CotizacionesController@create');
