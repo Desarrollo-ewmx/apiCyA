@@ -50,29 +50,30 @@ class ArmadosController extends Controller
      */
     public function show($id)
     {
-        $data=[];
+        // $data=[];
         $armado = armados::findOrFail($id);
         // $armado = armados::where('id', '=', $id)->get();
         if($armado){
-            $data=[]; 
-            $data['Id']=$armado->id;
-            $data['Ruta']=$armado->img_rut;
-            $data['Complemento']=$armado->img_nom;
-            $data['Ruta_Completa']=$armado->img_rut . $armado->img_nom;
-            $data['Clon']=$armado->clon;
-            $data['Numero_clones']=$armado->num_clon;
-            $data['Tipo_armado']=$armado->tip;
-            $data['Nombre_armado']=$armado->nom;
-            $data['Sku']=$armado->sku;
-            $data['Gama']=$armado->gama;
-            $data['Armado_catalogo']=$armado->arm_de_cat;
-            $data['Precio_redondeado']=$armado->prec_redond;
-            $data['Tamaño']=$armado->tam;
-            $data['Peso']=$armado->pes;
-            $data['Altura']=$armado->alto;
-            $data['Ancho']=$armado->ancho;
-            $data['Largo']=$armado->largo;
+            // $data=[]; 
+            $data['id']=$armado->id;
+            $data['ruta']=$armado->img_rut;
+            $data['complemento']=$armado->img_nom;
+            $data['ruta_Completa']=$armado->img_rut . $armado->img_nom;
+            $data['clon']=$armado->clon;
+            $data['numero_clones']=$armado->num_clon;
+            $data['tipo_armado']=$armado->tip;
+            $data['nombre_armado']=$armado->nom;
+            $data['sku']=$armado->sku;
+            $data['gama']=$armado->gama;
+            $data['armado_catalogo']=$armado->arm_de_cat;
+            $data['precio_redondeado']=$armado->prec_redond;
+            $data['tamaño']=$armado->tam;
+            $data['peso']=$armado->pes;
+            $data['altura']=$armado->alto;
+            $data['ancho']=$armado->ancho;
+            $data['largo']=$armado->largo;
             return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
+            // return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
         }else{
                 return response()->json(['data'=>[],"message"=>"armado no encontrado","code"=>404]);
             }
@@ -118,31 +119,32 @@ class ArmadosController extends Controller
             'token'=>'required'
         ]);
         if($this->verifica($request->token)){
-            $data=[];
+            // $data=[];
             $armado = armados::where('id', '!=', 0)->get();
             if($armado){
                 $data['armado']=[];
                 for ($i=0; $i< count($armado); $i++) {
-                    $datos=[]; 
-                    $datos['Id']=$armado[$i]->id;
-                    $datos['Ruta']=$armado[$i]->img_rut;
-                    $datos['Complemento']=$armado[$i]->img_nom;
-                    $datos['Ruta_Completa']=$armado[$i]->img_rut . $armado[$i]->img_nom;
-                    $datos['Clon']=$armado[$i]->clon;
-                    $datos['Numero_clones']=$armado[$i]->num_clon;
-                    $datos['Tipo_armado']=$armado[$i]->tip;
-                    $datos['Nombre_armado']=$armado[$i]->nom;
-                    $datos['Sku']=$armado[$i]->sku;
-                    $datos['Gama']=$armado[$i]->gama;
-                    $datos['Armado_catalogo']=$armado[$i]->arm_de_cat;
-                    $datos['Precio_redondeado']=$armado[$i]->prec_redond;
-                    $datos['Tamaño']=$armado[$i]->tam;
-                    $datos['Peso']=$armado[$i]->pes;
-                    $datos['Altura']=$armado[$i]->alto;
-                    $datos['Ancho']=$armado[$i]->ancho;
-                    $datos['Largo']=$armado[$i]->largo;
+                    // $datos=[]; 
+                    $datos['id']=$armado[$i]->id;
+                    $datos['ruta']=$armado[$i]->img_rut;
+                    $datos['complemento']=$armado[$i]->img_nom;
+                    $datos['ruta_Completa']=$armado[$i]->img_rut . $armado[$i]->img_nom;
+                    $datos['clon']=$armado[$i]->clon;
+                    $datos['numero_clones']=$armado[$i]->num_clon;
+                    $datos['tipo_armado']=$armado[$i]->tip;
+                    $datos['nombre_armado']=$armado[$i]->nom;
+                    $datos['sku']=$armado[$i]->sku;
+                    $datos['gama']=$armado[$i]->gama;
+                    $datos['armado_catalogo']=$armado[$i]->arm_de_cat;
+                    $datos['precio_redondeado']=$armado[$i]->prec_redond;
+                    $datos['tamaño']=$armado[$i]->tam;
+                    $datos['peso']=$armado[$i]->pes;
+                    $datos['altura']=$armado[$i]->alto;
+                    $datos['ancho']=$armado[$i]->ancho;
+                    $datos['largo']=$armado[$i]->largo;
                     array_push($data['armado'],$datos);
                 }
+                // return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
                 return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
             }else{
                     return response()->json(['data'=>[],"message"=>"armado no encontrado","code"=>404]);
