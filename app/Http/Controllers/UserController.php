@@ -55,12 +55,13 @@ class UserController extends Controller
             'nombre'=>'required',
             'apellido'=>'required',
             'tel_mov'=>'required',
+            'password' =>'required',
             'token'=>'required'
         ]);
-      //  return $request;
+        // return $validated;
         if($this->verifica($request->token)){
            // return "si es valido";
-            $claveinicial="CanastasYArcones";
+            // $claveinicial="CanastasYArcones";
             $user= new User();
             $user->nom=$request->nombre;
             $user->email=$request->email;
@@ -68,10 +69,13 @@ class UserController extends Controller
             $user->acceso=2;
             $user->email_registro=$request->email;
             $user->tel_mov=$request->tel_mov;
-            $user->password = bcrypt($claveinicial);
+            // $user->password = bcrypt($claveinicial);
+            $user->password = bcrypt($request->password);
+            // $user->password = bcrypt($pas);
             $user->asignado_us="API";
             $user->created_at= date('Y-m-d H:i:s');
-            $user->created_at_us= date('Y-m-d H:i:s');
+            $user->created_at_us= $request->email;
+            // return $user;
             $user->save();
             DB::table('model_has_roles')->insert([
                 'role_id' => '2',

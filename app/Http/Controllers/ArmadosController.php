@@ -145,7 +145,7 @@ class ArmadosController extends Controller
                     array_push($data['armado'],$datos);
                 }
                 // return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
-                return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
+                return response(['data'=>$data,"message"=>"success","code"=>200]);
             }else{
                     return response()->json(['data'=>[],"message"=>"armado no encontrado","code"=>404]);
                 }
