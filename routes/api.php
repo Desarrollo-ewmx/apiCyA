@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CotizacionesController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ArmadosController;
+use App\Http\Controllers\SistemaController;
 
 
 /*
@@ -33,6 +34,10 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
 
     Route::get('muestraproducto/{id}','App\Http\Controllers\ProductosController@show');
     Route::get('muestraproductos','App\Http\Controllers\ProductosController@productos');
+
+    Route::get('armadosporproductos/{id}','App\Http\Controllers\ArmadoProductoController@show');
+
+    Route::get('info','App\Http\Controllers\SistemaController@index');
 
     Route::post('cot','App\Http\Controllers\CotizacionesController@create');
 });
