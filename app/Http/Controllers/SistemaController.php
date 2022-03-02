@@ -32,6 +32,7 @@ class SistemaController extends Controller
         $datos['youtube']=$info[0]->red_youtube;
         $datos['logo']=$info[0]->log_neg_rut.$info[0]->log_neg;
         array_push($data['info'],$datos);
+        // $arreglo=array($datos);
         return response(['data'=>$data,"message"=>"success","code"=>200]);
     }
 

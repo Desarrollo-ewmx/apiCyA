@@ -130,7 +130,7 @@ class CotizacionesController extends Controller
             $coti->updated_at = date('Y-m-d H:i:s');
             // return $coti;
             $coti->save();
-            return response()->json(['data'=>[],"message"=>"Cotización regristrada con éxito","code"=>201]);
+            return response()->json(['data'=>[],"message"=>"Solicitud no válida,","code"=>400]);
         }
         // else{
         //     return response()->json(['data'=>[],"message"=>"token invalido","code"=>403]);

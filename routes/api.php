@@ -36,6 +36,7 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
     Route::get('muestraproductos','App\Http\Controllers\ProductosController@productos');
 
     Route::get('armadosporproductos/{id}','App\Http\Controllers\ArmadoProductoController@show');
+    Route::get('muestraarmadoyproductos/{id}','App\Http\Controllers\ArmadoProductoController@muestratodo');
 
     Route::get('info','App\Http\Controllers\SistemaController@index');
 
