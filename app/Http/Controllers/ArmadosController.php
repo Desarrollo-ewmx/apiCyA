@@ -142,6 +142,7 @@ class ArmadosController extends Controller
                     $datos['altura']=$armado[$i]->alto;
                     $datos['ancho']=$armado[$i]->ancho;
                     $datos['largo']=$armado[$i]->largo;
+                    $datos['destacado']=$armado[$i]->dest;
                     array_push($data['armado'],$datos);
                 }
                 // return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
@@ -149,6 +150,34 @@ class ArmadosController extends Controller
             }else{
                     return response()->json(['data'=>[],"message"=>"armado no encontrado","code"=>404]);
                 }
+        }
+    }
+
+    public function gamas($gama){
+        $armado = armados::where('gama', '=', $gama)->get();
+        if($armado){
+            $data['armado']=[];
+            for ($i=0; $i< count($armado); $i++) {
+                // $datos=[]; 
+                $datos['id']=$armado[$i]->id;
+                $datos['ruta']=$armado[$i]->img_rut;
+                $datos['complemento']=$armado[$i]->img_nom;
+                $datos['ruta_Completa']=$armado[$i]->img_rut . $armado[$i]->img_nom;
+                $datos['clon']=$armado[$i]->clon;
+                $datos['numero_clones']=$armado[$i]->num_clon;
+                $datos['tipo_armado']=$armado[$i]->tip;
+                $datos['nombre_armado']=$armado[$i]->nom;
+                $datos['sku']=$armado[$i]->sku;
+                $datos['gama']=$armado[$i]->gama;
+                $datos['armado_catalogo']=$armado[$i]->arm_de_cat;
+                $datos['precio_redondeado']=$armado[$i]->prec_redond;
+                $datos['destacado']=$armado[$i]->dest;
+                array_push($data['armado'],$datos);
+            }
+            // return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
+            return response(['data'=>$data,"message"=>"success","code"=>200]);
+        }else{
+                return response()->json(['data'=>[],"message"=>"gama no encontrado","code"=>404]);
         }
     }
 }
