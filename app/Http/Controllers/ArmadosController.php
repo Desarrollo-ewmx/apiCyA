@@ -53,7 +53,10 @@ class ArmadosController extends Controller
     {
         // $data=[];
         $armado = armados::findOrFail($id);
+        $armado->join('marcas_has_armados', 'marcas_has_armados.armado_id','=','armados.id')->where('marcas_has_armados.marca_id','=',11)->orderBy('armados.id', 'ASC');
+        // $armado = armados::join('marcas_has_armados', 'marcas_has_armados.armado_id','=','armados.id')->where('marcas_has_armados.marca_id','=',11)->orderBy('armados.id', 'ASC')->get();
         // $armado = armados::where('id', '=', $id)->get();
+        // return $armado;
         if($armado){
             // $data=[]; 
             $data['id']=$armado->id;

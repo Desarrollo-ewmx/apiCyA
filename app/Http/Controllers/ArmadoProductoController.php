@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ArmadoProducto;
 use App\Models\armados;
+use App\Models\MarcaTieneArmado;
 use App\Models\Producto;
 use Illuminate\Http\Request;
 use App\Traits\Verifytoken;
@@ -86,6 +87,7 @@ class ArmadoProductoController extends Controller
     public function muestratodo($id){
         $idarmado = ArmadoProducto::where('armado_id', '=', $id)->get();
         $armado = armados::findOrFail($id);
+        $armado->join('marcas_has_armados', 'marcas_has_armados.armado_id','=','armados.id')->where('marcas_has_armados.marca_id','=',11)->orderBy('armados.id', 'ASC');
         if(count($idarmado)!=0) {
             $data['id']=$armado->id;
             $data['ruta']=$armado->img_rut;
@@ -131,12 +133,14 @@ class ArmadoProductoController extends Controller
         ]);
         if($this->verifica($request->token)){
             // $data=[];
-            $armado = armados::where('id', '!=', 0)->where('arm_de_cat','!=','No')->get();
+            // $armado = armados::where('id', '!=', 0)->where('arm_de_cat','!=','No')->get();
+            $armado = armados::join('marcas_has_armados', 'marcas_has_armados.armado_id','=','armados.id')->where('marcas_has_armados.marca_id','=',11)->orderBy('armados.id', 'ASC')->get();
+            // return $armado;
             if($armado){
                 $data['armado']=[];
                 for ($i=0; $i< count($armado); $i++) {
                     // $datos=[]; 
-                    $datos['id']=$armado[$i]->id;
+                    $datos['id']=$armado[$i]->armado_id;
                     // return $armado[$i]->id;
                     $datos['ruta']=$armado[$i]->img_rut;
                     $datos['complemento']=$armado[$i]->img_nom;
@@ -156,7 +160,7 @@ class ArmadoProductoController extends Controller
                     $datos['largo']=$armado[$i]->largo;
                     $datos['destacado']=$armado[$i]->dest;
                     $datos['productosxarmado']=[];
-                    $algo = strval($armado[$i]->id);
+                    $algo = strval($armado[$i]->armado_id);
                     // return 'Esto es algo '.$algo;
                     // 
                         $idarmado = ArmadoProducto::where('armado_id', '=', $algo)->get();
