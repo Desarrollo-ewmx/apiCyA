@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Traits\Verifytoken;
 use App\Models\armados;
+use App\Models\MarcaTieneArmado;
 
 class ArmadosController extends Controller
 {
@@ -120,7 +121,9 @@ class ArmadosController extends Controller
         ]);
         if($this->verifica($request->token)){
             // $data=[];
-            $armado = armados::where('id', '!=', 0)->get();
+            // $armado = armados::where('id', '!=', 0)->get();
+            
+            $armado = armados::join('marcas_has_armados','armados.id', '=', 'marcas_has_armados.armado_id')->where('marcas_has_armados.marca_id','=',11)->get();
             if($armado){
                 $data['armado']=[];
                 for ($i=0; $i< count($armado); $i++) {

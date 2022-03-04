@@ -44,6 +44,8 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
     Route::get('fac','App\Http\Controllers\FacturasController@fact');
     Route::get('facpornombre','App\Http\Controllers\FacturasController@factone');
 
+    // Route::get('marca','App\Http\Controllers\MarcaTieneArmadoController@filtro');
+
     Route::get('info','App\Http\Controllers\SistemaController@index');
 
     Route::post('cot','App\Http\Controllers\CotizacionesController@create');
