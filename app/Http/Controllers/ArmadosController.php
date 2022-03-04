@@ -122,13 +122,12 @@ class ArmadosController extends Controller
         if($this->verifica($request->token)){
             // $data=[];
             // $armado = armados::where('id', '!=', 0)->get();
-            
-            $armado = armados::join('marcas_has_armados','armados.id', '=', 'marcas_has_armados.armado_id')->where('marcas_has_armados.marca_id','=',11)->get();
+            $armado = armados::join('marcas_has_armados', 'marcas_has_armados.armado_id','=','armados.id')->where('marcas_has_armados.marca_id','=',11)->orderBy('armados.id', 'ASC')->get();
             if($armado){
                 $data['armado']=[];
                 for ($i=0; $i< count($armado); $i++) {
                     // $datos=[]; 
-                    $datos['id']=$armado[$i]->id;
+                    $datos['id']=$armado[$i]->armado_id;
                     $datos['ruta']=$armado[$i]->img_rut;
                     $datos['complemento']=$armado[$i]->img_nom;
                     $datos['ruta_Completa']=$armado[$i]->img_rut . $armado[$i]->img_nom;
