@@ -66,6 +66,8 @@ class PedidosController extends Controller
         //
     }
     public function pedido(Request $request){
+        try {
+            //code...
         //return $request;
         $validated = $request->validate([
             'email' => 'required|email',
@@ -107,11 +109,15 @@ class PedidosController extends Controller
                 return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
             }else{
                 //Si no se encuentra un usuario regresa un 404
-                return response()->json(['data'=>[],"message"=>"usuario no encontrado","code"=>404]);
+                return response()->json(['data'=>$request->email,"message"=>"usuario no encontrado","code"=>404]);
             }
         }else{
             //Si no es correcto el Token regresa un 403
             return response()->json(['data'=>[],"message"=>"token invalido","code"=>403]);
+        }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response(["message"=>"error", 'error'=>$th->status]);
         }
     }
 }

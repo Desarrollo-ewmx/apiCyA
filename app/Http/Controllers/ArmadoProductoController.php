@@ -134,7 +134,7 @@ class ArmadoProductoController extends Controller
         if($this->verifica($request->token)){
             // $data=[];
             // $armado = armados::where('id', '!=', 0)->where('arm_de_cat','!=','No')->get();
-            $armado = armados::join('marcas_has_armados', 'marcas_has_armados.armado_id','=','armados.id')->where('marcas_has_armados.marca_id','=',11)->orderBy('armados.id', 'ASC')->get();
+            $armado = armados::join('marcas_has_armados', 'marcas_has_armados.armado_id','=','armados.id')->where('marcas_has_armados.marca_id','=',11)->orderBy('armados.id', 'ASC')->where('armados.deleted_at','=',null)->get();
             // return $armado;
             if($armado){
                 $data['armado']=[];

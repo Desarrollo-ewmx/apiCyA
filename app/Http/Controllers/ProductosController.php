@@ -36,21 +36,27 @@ class ProductosController extends Controller
      */
     public function show($id)
     {
-        $producto = Producto::findOrFail($id);
-        if($producto){
-            $data['id']=$producto->id;
-            $data['imagen']=$producto->img_prod_rut . $producto->img_prod_nom;
-            $data['nombre']=$producto->produc;
-            $data['catalogo']=$producto->pro_de_cat;
-            $data['sku']=$producto->sku;
-            $data['marca']=$producto->marc;
-            $data['tipo']=$producto->tip;
-            $data['tamaño']=$producto->tam;
-            $data['categoria']=$producto->categ;
-            return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
-        }else{
-                return response()->json(['data'=>[],"message"=>"producto no encontrado","code"=>404]);
-            }
+        try {
+            //code...
+            $producto = Producto::findOrFail($id);
+            if($producto){
+                $data['id']=$producto->id;
+                $data['imagen']=$producto->img_prod_rut . $producto->img_prod_nom;
+                $data['nombre']=$producto->produc;
+                $data['catalogo']=$producto->pro_de_cat;
+                $data['sku']=$producto->sku;
+                $data['marca']=$producto->marc;
+                $data['tipo']=$producto->tip;
+                $data['tamaño']=$producto->tam;
+                $data['categoria']=$producto->categ;
+                return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
+            }else{
+                    return response()->json(['data'=>[],"message"=>"producto no encontrado","code"=>404]);
+                }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response(["message"=>"error", 'error'=>$th,'code'=>404]);
+        }
         //
     }
 
@@ -78,6 +84,8 @@ class ProductosController extends Controller
     }
     
     public function productos(){
+        try {
+            //code...
             $productos = Producto::where('id', '!=', 0)->get();
             if($productos){
                 $data['productos']=[];
@@ -98,5 +106,9 @@ class ProductosController extends Controller
             }else{
                     return response()->json(['data'=>[],"message"=>"producto no encontrado","code"=>404]);
                 }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response(["message"=>"error", 'error'=>$th]);
+        }
     }
 }

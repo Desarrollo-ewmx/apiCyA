@@ -15,25 +15,31 @@ class SistemaController extends Controller
     public function index()
     {
         //
-        $data['info']=[];
-        $info = Sistema::where('id', '=', 1)->get();
-        $datos['empresa']=$info[0]->emp;
-        $datos['empresa_abrev']=$info[0]->emp_abrev;
-        $datos['year']=$info[0]->year_de_ini;
-        $datos['tel']=$info[0]->lad_fij.$info[0]->tel_fij;
-        $datos['ext']=$info[0]->ext;
-        $datos['direccion']=$info[0]->direc_uno;
-        $datos['correo_ventas']=$info[0]->corr_vent;
-        $datos['pag']=$info[0]->pag;
-        $datos['face']=$info[0]->red_fbk;
-        $datos['twitter']=$info[0]->red_tw;
-        $datos['insta']=$info[0]->red_ins;
-        $datos['link']=$info[0]->red_link;
-        $datos['youtube']=$info[0]->red_youtube;
-        $datos['logo']=$info[0]->log_neg_rut.$info[0]->log_neg;
-        array_push($data['info'],$datos);
-        // $arreglo=array($datos);
-        return response(['data'=>$data,"message"=>"success","code"=>200]);
+        try {
+            //code...
+            $data['info']=[];
+            $info = Sistema::where('id', '=', 1)->get();
+            $datos['empresa']=$info[0]->emp;
+            $datos['empresa_abrev']=$info[0]->emp_abrev;
+            $datos['year']=$info[0]->year_de_ini;
+            $datos['tel']=$info[0]->lad_fij.$info[0]->tel_fij;
+            $datos['ext']=$info[0]->ext;
+            $datos['direccion']=$info[0]->direc_uno;
+            $datos['correo_ventas']=$info[0]->corr_vent;
+            $datos['pag']=$info[0]->pag;
+            $datos['face']=$info[0]->red_fbk;
+            $datos['twitter']=$info[0]->red_tw;
+            $datos['insta']=$info[0]->red_ins;
+            $datos['link']=$info[0]->red_link;
+            $datos['youtube']=$info[0]->red_youtube;
+            $datos['logo']=$info[0]->log_neg_rut.$info[0]->log_neg;
+            array_push($data['info'],$datos);
+            // $arreglo=array($datos);
+            return response(['data'=>$data,"message"=>"success","code"=>200]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response(["message"=>"error", 'error'=>$th]);
+        }
     }
 
     /**

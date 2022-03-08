@@ -65,6 +65,8 @@ class MarcaTieneArmadoController extends Controller
     }
 
     public function filtro(){
+        try {
+            //code...
             // $marcas = MarcaTieneArmado::get();
             // $data=[];
             $armado = armados::join('marcas_has_armados','armados.id', '=', 'marcas_has_armados.armado_id')->where('marcas_has_armados.marca_id','=',11)->get();
@@ -97,5 +99,9 @@ class MarcaTieneArmadoController extends Controller
             }else{
                     return response()->json(['data'=>[],"message"=>"armado no encontrado","code"=>404]);
                 }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response(["message"=>"error", 'error'=>$th->status]);
+        }
     }
 }
