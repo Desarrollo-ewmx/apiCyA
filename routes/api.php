@@ -26,7 +26,7 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
 
     Route::post('pruebas','App\Http\Controllers\CotizacionesController@index');
     Route::post('cyaquery','App\Http\Controllers\UserController@index');
-    // Route::post('cyaadd','App\Http\Controllers\CotizacionesController@create');
+    Route::post('cotizacion','App\Http\Controllers\CotizacionesController@create');
     Route::post('useradd','App\Http\Controllers\UserController@create');
     Route::post('pedido','App\Http\Controllers\PedidosController@pedido');
     
@@ -44,11 +44,15 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
     Route::get('fac','App\Http\Controllers\FacturasController@fact');
     Route::get('facpornombre','App\Http\Controllers\FacturasController@factone');
 
+    Route::get('plantilla','App\Http\Controllers\PlantillaController@mostrarplantilla');
+    
     // Route::get('marca','App\Http\Controllers\MarcaTieneArmadoController@filtro');
 
     Route::get('info','App\Http\Controllers\SistemaController@index');
 
     Route::post('cot','App\Http\Controllers\CotizacionesController@create');
+    Route::put('cotizacion','App\Http\Controllers\CotizacionesController@update');
+    Route::get('cotizacion','App\Http\Controllers\CotizacionesController@ver');
 });
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();

@@ -45,19 +45,25 @@ class ArmadoProductoController extends Controller
      */
     public function show($id)
     {
-        //
-        $idarmado = ArmadoProducto::where('armado_id', '=', $id)->get();
-        // return count($idarmado);
-        if(count($idarmado)!=0) {
-            $data['productosxarmado']=[];
-            for ($i=0; $i< count($idarmado); $i++){
-                $datos['id_producto']=$idarmado[$i]->producto_id;
-                array_push($data['productosxarmado'],$datos);
+        try {
+            //code...
+            $idarmado = ArmadoProducto::where('armado_id', '=', $id)->get();
+            // return count($idarmado);
+            if(count($idarmado)!=0) {
+                $data['productosxarmado']=[];
+                for ($i=0; $i< count($idarmado); $i++){
+                    $datos['id_producto']=$idarmado[$i]->producto_id;
+                    array_push($data['productosxarmado'],$datos);
+                }
+                return response(['data'=>$data,"message"=>"success","code"=>200]);
+            }else{
+                return response()->json(['data'=>[],"message"=>"id del producto no encontrado","code"=>404], 404);
             }
-            return response(['data'=>$data,"message"=>"success","code"=>200]);
-        }else{
-            return response()->json(['data'=>[],"message"=>"id del producto no encontrado","code"=>404]);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['data' => null,'status'=>'error','message' =>"id del producto no encontrado"], 404);
         }
+        //
     }
 
     /**
@@ -85,47 +91,53 @@ class ArmadoProductoController extends Controller
 
 
     public function muestratodo($id){
-        $idarmado = ArmadoProducto::where('armado_id', '=', $id)->get();
-        $armado = armados::findOrFail($id);
-        $armado->join('marcas_has_armados', 'marcas_has_armados.armado_id','=','armados.id')->where('marcas_has_armados.marca_id','=',11)->orderBy('armados.id', 'ASC');
-        if(count($idarmado)!=0) {
-            $data['id']=$armado->id;
-            $data['ruta']=$armado->img_rut;
-            $data['complemento']=$armado->img_nom;
-            $data['ruta_Completa']=$armado->img_rut . $armado->img_nom;
-            $data['clon']=$armado->clon;
-            $data['numero_clones']=$armado->num_clon;
-            $data['tipo_armado']=$armado->tip;
-            $data['nombre_armado']=$armado->nom;
-            $data['sku']=$armado->sku;
-            $data['gama']=$armado->gama;
-            $data['armado_catalogo']=$armado->arm_de_cat;
-            $data['precio_redondeado']=$armado->prec_redond;
-            $data['tamaño']=$armado->tam;
-            $data['peso']=$armado->pes;
-            $data['altura']=$armado->alto;
-            $data['ancho']=$armado->ancho;
-            $data['largo']=$armado->largo;
-            $data['productosxarmado']=[];
-            for ($i=0; $i< count($idarmado); $i++){
-                $nuevoid = $idarmado[$i]->producto_id;
-                $datos['id_producto']=$idarmado[$i]->producto_id;
-                $producto = Producto::findOrFail($nuevoid);
-                $datos['desc_producto']['id']=$producto->id;
-                $datos['desc_producto']['imagen']=$producto->img_prod_rut . $producto->img_prod_nom;
-                $datos['desc_producto']['nombre']=$producto->produc;
-                $datos['desc_producto']['catalogo']=$producto->pro_de_cat;
-                $datos['desc_producto']['sku']=$producto->sku;
-                $datos['desc_producto']['marca']=$producto->marc;
-                $datos['desc_producto']['tipo']=$producto->tip;
-                $datos['desc_producto']['tamaño']=$producto->tam;
-                $datos['desc_producto']['categoria']=$producto->categ;
-                array_push($data['productosxarmado'],$datos);
+        try {
+            //code...
+            $idarmado = ArmadoProducto::where('armado_id', '=', $id)->get();
+            $armado = armados::findOrFail($id);
+            $armado->join('marcas_has_armados', 'marcas_has_armados.armado_id','=','armados.id')->where('marcas_has_armados.marca_id','=',11)->orderBy('armados.id', 'ASC');
+            if(count($idarmado)!=0) {
+                $data['id']=$armado->id;
+                $data['ruta']=$armado->img_rut;
+                $data['complemento']=$armado->img_nom;
+                $data['ruta_Completa']=$armado->img_rut . $armado->img_nom;
+                $data['clon']=$armado->clon;
+                $data['numero_clones']=$armado->num_clon;
+                $data['tipo_armado']=$armado->tip;
+                $data['nombre_armado']=$armado->nom;
+                $data['sku']=$armado->sku;
+                $data['gama']=$armado->gama;
+                $data['armado_catalogo']=$armado->arm_de_cat;
+                $data['precio_redondeado']=$armado->prec_redond;
+                $data['tamaño']=$armado->tam;
+                $data['peso']=$armado->pes;
+                $data['altura']=$armado->alto;
+                $data['ancho']=$armado->ancho;
+                $data['largo']=$armado->largo;
+                $data['productosxarmado']=[];
+                for ($i=0; $i< count($idarmado); $i++){
+                    $nuevoid = $idarmado[$i]->producto_id;
+                    $datos['id_producto']=$idarmado[$i]->producto_id;
+                    $producto = Producto::findOrFail($nuevoid);
+                    $datos['desc_producto']['id']=$producto->id;
+                    $datos['desc_producto']['imagen']=$producto->img_prod_rut . $producto->img_prod_nom;
+                    $datos['desc_producto']['nombre']=$producto->produc;
+                    $datos['desc_producto']['catalogo']=$producto->pro_de_cat;
+                    $datos['desc_producto']['sku']=$producto->sku;
+                    $datos['desc_producto']['marca']=$producto->marc;
+                    $datos['desc_producto']['tipo']=$producto->tip;
+                    $datos['desc_producto']['tamaño']=$producto->tam;
+                    $datos['desc_producto']['categoria']=$producto->categ;
+                    array_push($data['productosxarmado'],$datos);
+                }
+                return response(['data'=>$data,"message"=>"success","code"=>200]);
+            }else{
+                return response()->json(['data'=>[],"message"=>"id del producto no encontrado","code"=>404], 404);
             }
-            return response(['data'=>$data,"message"=>"success","code"=>200]);
-        }else{
-            return response()->json(['data'=>[],"message"=>"id del producto no encontrado","code"=>404]);
-        }
+            } catch (\Throwable $th) {
+                //throw $th;
+                return response()->json(['data' => null,'status'=>'error','message' =>"armados no encontrados"], 404);
+            }
     }
     public function muestratodos(Request $request){
         $validated = $request->validate([
@@ -134,7 +146,7 @@ class ArmadoProductoController extends Controller
         if($this->verifica($request->token)){
             // $data=[];
             // $armado = armados::where('id', '!=', 0)->where('arm_de_cat','!=','No')->get();
-            $armado = armados::join('marcas_has_armados', 'marcas_has_armados.armado_id','=','armados.id')->where('marcas_has_armados.marca_id','=',11)->orderBy('armados.id', 'ASC')->where('armados.deleted_at','=',null)->get();
+            $armado = armados::join('marcas_has_armados', 'marcas_has_armados.armado_id','=','armados.id')->where('marcas_has_armados.marca_id','=',11)->orderBy('armados.id', 'ASC')->get();
             // return $armado;
             if($armado){
                 $data['armado']=[];
@@ -186,7 +198,7 @@ class ArmadoProductoController extends Controller
                 // return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
                 return response(['data'=>$data,"message"=>"success","code"=>200]);
             }else{
-                    return response()->json(['data'=>[],"message"=>"armado no encontrado","code"=>404]);
+                    return response()->json(['data'=>[],"message"=>"armado no encontrado","code"=>404],404);
                 }
         }
     }

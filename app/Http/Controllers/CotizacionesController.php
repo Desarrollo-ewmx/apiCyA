@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Traits\Verifytoken;
 use App\Models\carmados;
+use App\Models\Serie;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 
@@ -70,6 +71,52 @@ class CotizacionesController extends Controller
             return response()->json(['data'=>[],"message"=>"token invalido","code"=>403]);
         }
     }
+
+    public function update(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'estat'=> 'required',
+                'desc_cot'=> 'required',
+                'tot_arm'=> 'required',
+                'cost_env'=> 'required',
+                'desc'=> 'required',
+                'sub_total'=> 'required',
+                'iva'=> 'required',
+                'com'=> 'required',
+                'tot'=> 'required',
+                'token'=>'required'
+            ]);
+            
+            if($this->verifica($request->token)){
+                if($validated){
+                    $coti = Cotizaciones::find($request->id);
+                    // $coti = Cotizaciones::find(2);
+                    // return $coti;
+                    $coti->estat = $request->has('estat') ? $request->get('estat') : $coti->estat;
+                    $coti->desc_cot = $request->has('desc_cot') ? $request->get('desc_cot') : $request->desc_cot;
+                    // if($coti->desc_cot == ''){
+                    //     $coti->desc_cot = 'Sin descripcion';
+                    // }
+                    $coti->tot_arm = $request->has('tot_arm') ? $request->get('tot_arm') : $request->tot_arm;
+                    $coti->cost_env = $request->has('cost_env') ? $request->get('cost_env') : $request->cost_env;
+                    $coti->desc = $request->has('desc') ? $request->get('desc') : $request->desc;
+                    $coti->sub_total = $request->has('sub_total') ? $request->get('sub_total') : $request->sub_total;
+                    $coti->iva = $request->has('iva') ? $request->get('iva') : $request->iva;
+                    $coti->com = $request->has('com') ? $request->get('com') : $request->com;
+                    $coti->tot = $request->has('tot') ? $request->get('tot') : $request->tot;
+                    // return $coti; 
+                    $coti->save();
+                    return response()->json(['data'=>[],"message"=>"Cotización actualizada con éxito","code"=>201],201);
+                }
+            }else{
+                    return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
+            }
+        } catch (\Throwable $th) {
+            return response(["message"=>"error", 'error'=>$th],422);
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -77,97 +124,61 @@ class CotizacionesController extends Controller
      */
     public function create(Request $request)
     {
-        //
-        $validated = $request->validate([
-            'estat'=> 'required',
-            // 'valid'=> 'required',
-            'desc_cot'=> 'nullable',
-            // 'coment'=> 'required',
-            // 'coment_vent'=> 'required',
-            'tot_arm'=> 'required',
-            'cost_env'=> 'required',
-            'desc'=> 'required',
-            'sub_total'=> 'required',
-            'iva'=> 'required',
-            'com'=> 'required',
-            'tot'=> 'required',
-            'user_id'=> 'required'
-        ]);
-        if($validated){
-            $fecha_actual = date("d-m-Y");
-            $coti = new cotizaciones();
-            $cot = cotizaciones::orderby('created_at', 'desc')->first();
-            $str = substr($cot->serie, 4);
-            $seriemasuno = (int)$str+=1;
-            $coti->serie = $cot->ser.(String)$seriemasuno;
-            $coti->ser = $cot->ser;
-            $coti->estat = 'Abierta';
-            $coti->valid = date('Y-m-d H:i:s',strtotime($fecha_actual."+ 1 week"));
-            if($coti->desc_cot == NULL){
-                $coti->desc_cot = 'Sin descripcion';
+        try {
+            $validated = $request->validate([
+                'estat'=> 'required',
+                'desc_cot'=> 'nullable',
+                'tot_arm'=> 'required',
+                'cost_env'=> 'required',
+                'desc'=> 'required',
+                'sub_total'=> 'required',
+                'iva'=> 'required',
+                'com'=> 'required',
+                'tot'=> 'required',
+                'user_id'=> 'required',
+                'token'=>'required'
+            ]);
+            if($this->verifica($request->token)){
+                if($validated){
+                    $fecha_actual = date("d-m-Y");
+                    $coti = new Cotizaciones();
+                    $cot = Cotizaciones::orderby('created_at', 'desc')->first();
+                    $str = substr($cot->serie, 4);
+                    $seriemasuno = (int)$str+=1;
+                    $coti->serie = $cot->ser.(String)$seriemasuno;
+                    $coti->ser = $cot->ser;
+                    $coti->estat = 'Abierta';
+                    $coti->valid = date('Y-m-d H:i:s',strtotime($fecha_actual."+ 1 week"));
+                    $coti->desc_cot = $request->desc_cot;
+                    if($coti->desc_cot == ''){
+                        $coti->desc_cot = 'Sin descripcion';
+                    }
+                    $coti->tot_arm = $request->tot_arm;
+                    $coti->cost_env = $request->cost_env;
+                    $coti->desc = $request->desc;
+                    $coti->sub_total = $request->sub_total;
+                    $coti->iva = $request->iva;
+                    $coti->com = $request->com;
+                    $coti->tot = $request->tot;
+                    $coti->user_id = $request->user_id;
+                    $coti->asignado_cot = 'Apiecommerce';
+                    $coti->created_at_cot = 'Apiecommerce';
+                    $coti->created_at = date('Y-m-d H:i:s');
+                    $coti->updated_at = date('Y-m-d H:i:s');
+                    $serie = Serie::where('input', '=', 'Cotizaciones (Serie)' )->first();                    
+                    $serie->ult_ser += 1;
+                    $serie->save();
+                    $coti->save();
+                    return response()->json(['data'=>[],"message"=>"Cotización regristrada con éxito","code"=>201]);
+                }
             }else{
-                $coti->desc_cot = $request->desc_cot;
+                    return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
             }
-            $coti->tot_arm = $request->tot_arm;
-            $coti->cost_env = $request->cost_env;
-            $coti->desc = $request->desc;
-            $coti->sub_total = $request->sub_total;
-            $coti->iva = $request->iva;
-            $coti->com = $request->com;
-            $coti->tot = $request->tot;
-            $coti->user_id = $request->user_id;
-            // $coti->tot_arm = 10;
-            // $coti->cost_env = 250.00;
-            // $coti->desc = 0.00;
-            // $coti->sub_total = 2500.00;
-            // $coti->iva = 16.00;
-            // $coti->com = 0.00;
-            // $coti->tot = 2516.00;
-            // $coti->user_id = 1379;
-            $coti->asignado_cot = 'Apiecommerce';
-            $coti->created_at_cot = 'Apiecommerce';
-            $coti->created_at = date('Y-m-d H:i:s');
-            $coti->updated_at = date('Y-m-d H:i:s');
-            // return $coti;
-            $coti->save();
-            return response()->json(['data'=>[],"message"=>"Solicitud no válida,","code"=>400]);
+        } catch (\Throwable $th) {
+            return response(["message"=>"error", 'error'=>$th->status],422);
         }
-        // else{
-        //     return response()->json(['data'=>[],"message"=>"token invalido","code"=>403]);
-        // }
-
-
-    //     $validated = $request->validate([
-    //         'email' => 'required|email|unique:users,email,'.$request->email,
-    //         'nombre'=>'required',
-    //         'apellido'=>'required',
-    //         'tel_mov'=>'required',
-    //         'token'=>'required'
-    //     ]);
-    //   //  return $request;
-    //     if($this->verifica($request->token)){
-    //        // return "si es valido";
-    //         $claveinicial="CanastasYArcones";
-    //         $user= new User();
-    //         $user->nom=$request->nombre;
-    //         $user->email=$request->email;
-    //         $user->apell=$request->apellido;
-    //         $user->acceso=2;
-    //         $user->email_registro=$request->email;
-    //         $user->tel_mov=$request->tel_mov;
-    //         $user->password = bcrypt($claveinicial);
-    //         $user->asignado_us="API";
-    //         $user->created_at= date('Y-m-d H:i:s');
-    //         $user->created_at_us= date('Y-m-d H:i:s');
-    //         $user->save();
-    //         DB::table('model_has_roles')->insert([
-    //             'role_id' => '2',
-    //             'model_type' => 'App\User',
-    //             'model_id'=> $user->id
-    //         ]);
-    //         return response()->json(['data'=>[],"message"=>"usuario regristrado con éxito","code"=>201]);
-    //     }else{
-    //         return response()->json(['data'=>[],"message"=>"token invalido","code"=>403]);
-    //     }
+    }
+    public function ver(){
+        return cotizaciones::where('id','=',2)->get();
     }
 }

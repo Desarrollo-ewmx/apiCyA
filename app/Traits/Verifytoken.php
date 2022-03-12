@@ -11,14 +11,14 @@ trait Verifytoken{
 
     public function verifica($token){
         $tokenin="3RRZ4Czrz9KDMMG5Xo3IzaCU5WV7ZluKDYhNiw9lNZvUdRgFDnNUePyByJF8LVgIXPEE5gzJgQrzqa5RFaPu69oK893wNFWpY6xEoVLtzmNH3seFecjKBCHrjJXkTFo0DjDrR13NKF1R4uTxhxDnSw";
-if ($tokenin==$token) {
-    return 1;
+        if ($tokenin==$token) {
+            return 1;
 
-}else{
-    return 0;
+        }else{
+            return 0;
+        }
+
 }
-
-  }
 
 
 

@@ -51,37 +51,42 @@ class ArmadosController extends Controller
      */
     public function show($id)
     {
-        // $data=[];
-        $armado = armados::findOrFail($id);
-        $armado->join('marcas_has_armados', 'marcas_has_armados.armado_id','=','armados.id')->where('marcas_has_armados.marca_id','=',11)->orderBy('armados.id', 'ASC');
-        // $armado = armados::join('marcas_has_armados', 'marcas_has_armados.armado_id','=','armados.id')->where('marcas_has_armados.marca_id','=',11)->orderBy('armados.id', 'ASC')->get();
-        // $armado = armados::where('id', '=', $id)->get();
-        // return $armado;
-        if($armado){
-            // $data=[]; 
-            $data['id']=$armado->id;
-            $data['ruta']=$armado->img_rut;
-            $data['complemento']=$armado->img_nom;
-            $data['ruta_Completa']=$armado->img_rut . $armado->img_nom;
-            $data['clon']=$armado->clon;
-            $data['numero_clones']=$armado->num_clon;
-            $data['tipo_armado']=$armado->tip;
-            $data['nombre_armado']=$armado->nom;
-            $data['sku']=$armado->sku;
-            $data['gama']=$armado->gama;
-            $data['armado_catalogo']=$armado->arm_de_cat;
-            $data['precio_redondeado']=$armado->prec_redond;
-            $data['tamaño']=$armado->tam;
-            $data['peso']=$armado->pes;
-            $data['altura']=$armado->alto;
-            $data['ancho']=$armado->ancho;
-            $data['largo']=$armado->largo;
-            return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
-            // return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
-        }else{
-                return response()->json(['data'=>[],"message"=>"armado no encontrado","code"=>404]);
-            }
-        
+        try {
+            //code...
+            // $data=[];
+            $armado = armados::findOrFail($id);
+            $armado->join('marcas_has_armados', 'marcas_has_armados.armado_id','=','armados.id')->where('marcas_has_armados.marca_id','=',11)->orderBy('armados.id', 'ASC');
+            // $armado = armados::join('marcas_has_armados', 'marcas_has_armados.armado_id','=','armados.id')->where('marcas_has_armados.marca_id','=',11)->orderBy('armados.id', 'ASC')->get();
+            // $armado = armados::where('id', '=', $id)->get();
+            // return $armado;
+            if($armado){
+                // $data=[]; 
+                $data['id']=$armado->id;
+                $data['ruta']=$armado->img_rut;
+                $data['complemento']=$armado->img_nom;
+                $data['ruta_Completa']=$armado->img_rut . $armado->img_nom;
+                $data['clon']=$armado->clon;
+                $data['numero_clones']=$armado->num_clon;
+                $data['tipo_armado']=$armado->tip;
+                $data['nombre_armado']=$armado->nom;
+                $data['sku']=$armado->sku;
+                $data['gama']=$armado->gama;
+                $data['armado_catalogo']=$armado->arm_de_cat;
+                $data['precio_redondeado']=$armado->prec_redond;
+                $data['tamaño']=$armado->tam;
+                $data['peso']=$armado->pes;
+                $data['altura']=$armado->alto;
+                $data['ancho']=$armado->ancho;
+                $data['largo']=$armado->largo;
+                return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
+                // return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
+            }else{
+                    return response()->json(['data'=>[],"message"=>"armado no encontrado","code"=>404]);
+                }
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['data' => null,'status'=>'error','message' =>"id del armado no encontrado"], 404);
+        }
     }
 
     /**
