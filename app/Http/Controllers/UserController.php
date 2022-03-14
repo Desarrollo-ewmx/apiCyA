@@ -9,6 +9,7 @@ namespace App\Http\Controllers;
     use Tymon\JWTAuth\Exceptions\JWTException;
     use Illuminate\Support\Facades\DB;
     use App\Traits\Verifytoken;
+    use Illuminate\Database\QueryException;
 
 class UserController extends Controller
 {
@@ -50,41 +51,52 @@ class UserController extends Controller
 
     public function create(Request $request)
     {
-        $validated = $request->validate([
-            'email' => 'required|email|unique:users,email,'.$request->email,
-            'nombre'=>'required',
-            'apellido'=>'required',
-            'tel_mov'=>'required',
-            'password' =>'required',
-            'token'=>'required'
-        ]);
-        // return $validated;
-        if($this->verifica($request->token)){
-           // return "si es valido";
-            // $claveinicial="CanastasYArcones";
-            $user= new User();
-            $user->nom=$request->nombre;
-            $user->email=$request->email;
-            $user->apell=$request->apellido;
-            $user->acceso=2;
-            $user->email_registro=$request->email;
-            $user->tel_mov=$request->tel_mov;
-            // $user->password = bcrypt($claveinicial);
-            $user->password = bcrypt($request->password);
-            // $user->password = bcrypt($pas);
-            $user->asignado_us="API";
-            $user->created_at= date('Y-m-d H:i:s');
-            $user->created_at_us= $request->email;
-            // return $user;
-            $user->save();
-            DB::table('model_has_roles')->insert([
-                'role_id' => '2',
-                'model_type' => 'App\User',
-                'model_id'=> $user->id
-            ]);
-            return response()->json(['data'=>[],"message"=>"usuario regristrado con éxito","code"=>201]);
-        }else{
-            return response()->json(['data'=>[],"message"=>"token invalido","code"=>403]);
+        try {
+            $userexist = User::where('email', '=', $request->email)->get();
+            if(count($userexist)!==0) {
+                return response()->json(['data'=>[],"message"=>"Usuario ya ha sido registrado"]);
+            }else{
+
+                $validated = $request->validate([
+                    'email' => 'required|email|unique:users,email,'.$request->email,
+                    'nombre'=>'required',
+                    'apellido'=>'required',
+                    'tel_mov'=>'required',
+                    'password' =>'required',
+                    'token'=>'required'
+                ]);
+                // return $validated;
+                if($this->verifica($request->token)){
+                // return "si es valido";
+                    // $claveinicial="CanastasYArcones";
+                    $user= new User();
+                    $user->nom=$request->nombre;
+                    $user->email=$request->email;
+                    $user->apell=$request->apellido;
+                    $user->acceso=2;
+                    $user->email_registro=$request->email;
+                    $user->tel_mov=$request->tel_mov;
+                    // $user->password = bcrypt($claveinicial);
+                    $user->password = bcrypt($request->password);
+                    // $user->password = bcrypt($pas);
+                    $user->asignado_us="API";
+                    $user->created_at= date('Y-m-d H:i:s');
+                    $user->created_at_us= $request->email;
+                    // return $user;
+                    $user->save();
+                    DB::table('model_has_roles')->insert([
+                        'role_id' => '2',
+                        'model_type' => 'App\User',
+                        'model_id'=> $user->id
+                    ]);
+                    return response()->json(['data'=>[],"message"=>"Usuario regristrado con éxito","code"=>201]);
+                }else{
+                    return response()->json(['data'=>[],"message"=>"Token invalido","code"=>403]);
+                }
+            }
+        } catch (\Throwable $th) {
+            // return $ex->getMessage();
+            return response(["message"=>"error", 'error'=>$th->getMessage(),'code'=>404]);
         }
     }
 }
