@@ -54,7 +54,7 @@ class UserController extends Controller
         try {
             $userexist = User::where('email', '=', $request->email)->get();
             if(count($userexist)!==0) {
-                return response()->json(['data'=>[],"message"=>"Usuario ya ha sido registrado"]);
+                return response()->json(['data'=>[],"message"=>"Este correo ya ha sido registrado", 'code'=>400],400);
             }else{
 
                 $validated = $request->validate([

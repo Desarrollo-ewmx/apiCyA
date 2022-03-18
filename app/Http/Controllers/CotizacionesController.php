@@ -103,7 +103,7 @@ class CotizacionesController extends Controller
                     $coti->desc = $request->has('desc') ? $request->get('desc') : $request->desc;
                     $coti->sub_total = $request->has('sub_total') ? $request->get('sub_total') : $request->sub_total;
                     $coti->iva = $request->has('iva') ? $request->get('iva') : $request->iva;
-                    $coti->com = $request->has('com') ? $request->get('com') : $request->com;
+                    // $coti->com = $request->has('com') ? $request->get('com') : $request->com;
                     $coti->tot = $request->has('tot') ? $request->get('tot') : $request->tot;
                     // return $coti; 
                     $coti->save();
@@ -178,7 +178,47 @@ class CotizacionesController extends Controller
             return response(["message"=>"error", 'error'=>$th->status],422);
         }
     }
-    public function ver(){
-        return cotizaciones::where('id','=',2)->get();
+    public function ver(Request $request){
+        // return cotizaciones::where('id','=',$id)->get();
+        // //return $request;
+        $validated = $request->validate([
+            'user_id'=>'required',
+            'token'=>'required'
+        ]);
+        // return $request;
+        if($this->verifica($request->token)){
+            $data['cotizaciones']=[];
+            $cot=cotizaciones::where('user_id',$request->user_id)->get();  ////todas las cotizaciones
+            if($cot){
+                for($a=0;$a<count($cot);$a++){
+                    if($cot[$a]["deleted_at"]==NULL){
+                        $item=[];
+                        $item['Total']=$cot[$a]['tot'];
+                        $item['Serie']=$cot[$a]['serie'];
+                        $item['Arcones_Totales']=$cot[$a]['tot_arm'];
+                        $item['Fecha']=$cot[$a]['created_at'];
+                        $item['Arcones']=[];
+                        $armados=carmados::where('cotizacion_id',$cot[$a]->id)->get();
+                        for($b=0;$b<count($armados);$b++){
+                            $arm=[];
+                            $arm['Sku']=$armados[$b]['sku'];
+                            $arm['Nombre']=$armados[$b]['nom'];
+                            $arm['Gama']=$armados[$b]['gama'];
+                            $arm['Cantidad']=$armados[$b]['cant'];
+                            $arm['Precio_Unitario_Sin_Iva']=$armados[$b]['prec_redond'];
+                            $arm['Total']=$armados[$b]['tot'];
+                            $arm['Tipo']=$armados[$b]['tip'];
+                            array_push($item['Arcones'],$arm);
+                        }
+                    array_push($data['cotizaciones'],$item);
+                    }
+                }   
+            return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
+        }else{
+            return response()->json(['data'=>[],"message"=>"usuario no encontrado","code"=>404]);
+        }
+        }else{
+            return response()->json(['data'=>[],"message"=>"token invalido","code"=>403]);
+        }
     }
 }
