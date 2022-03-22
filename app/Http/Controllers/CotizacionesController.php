@@ -43,22 +43,23 @@ class CotizacionesController extends Controller
             for($a=0;$a<count($cot);$a++){
                 if($cot[$a]["deleted_at"]==NULL){
                     $item=[];
-                    $item['Total']=$cot[$a]['tot'];
-                    $item['Serie']=$cot[$a]['serie'];
-                    $item['Arcones_Totales']=$cot[$a]['tot_arm'];
-                    $item['Fecha']=$cot[$a]['created_at'];
-                    $item['Arcones']=[];
+                    $item['id']=$cot[$a]['id'];
+                    $item['total']=$cot[$a]['tot'];
+                    $item['serie']=$cot[$a]['serie'];
+                    $item['arcones_totales']=$cot[$a]['tot_arm'];
+                    $item['fecha']=$cot[$a]['created_at'];
+                    $item['arcones']=[];
                     $armados=carmados::where('cotizacion_id',$cot[$a]->id)->get();
                     for($b=0;$b<count($armados);$b++){
                         $arm=[];
-                        $arm['Sku']=$armados[$b]['sku'];
-                        $arm['Nombre']=$armados[$b]['nom'];
-                        $arm['Gama']=$armados[$b]['gama'];
-                        $arm['Cantidad']=$armados[$b]['cant'];
-                        $arm['Precio_Unitario_Sin_Iva']=$armados[$b]['prec_redond'];
-                        $arm['Total']=$armados[$b]['tot'];
-                        $arm['Tipo']=$armados[$b]['tip'];
-                        array_push($item['Arcones'],$arm);
+                        $arm['sku']=$armados[$b]['sku'];
+                        $arm['nombre']=$armados[$b]['nom'];
+                        $arm['gama']=$armados[$b]['gama'];
+                        $arm['cantidad']=$armados[$b]['cant'];
+                        $arm['precio_unitario_sin_iva']=$armados[$b]['prec_redond'];
+                        $arm['total']=$armados[$b]['tot'];
+                        $arm['tipo']=$armados[$b]['tip'];
+                        array_push($item['arcones'],$arm);
                     }
                 array_push($data['cotizaciones'],$item);
                 }
@@ -179,8 +180,6 @@ class CotizacionesController extends Controller
         }
     }
     public function ver(Request $request){
-        // return cotizaciones::where('id','=',$id)->get();
-        // //return $request;
         $validated = $request->validate([
             'user_id'=>'required',
             'token'=>'required'
@@ -193,32 +192,40 @@ class CotizacionesController extends Controller
                 for($a=0;$a<count($cot);$a++){
                     if($cot[$a]["deleted_at"]==NULL){
                         $item=[];
-                        $item['Total']=$cot[$a]['tot'];
-                        $item['Serie']=$cot[$a]['serie'];
-                        $item['Arcones_Totales']=$cot[$a]['tot_arm'];
-                        $item['Fecha']=$cot[$a]['created_at'];
-                        $item['Arcones']=[];
+                        $item['id']=$cot[$a]['id'];
+                        $item['total']=$cot[$a]['tot'];
+                        $item['serie']=$cot[$a]['serie'];
+                        $item['arcones_totales']=$cot[$a]['tot_arm'];
+                        $item['fecha']=$cot[$a]['created_at'];
+                        $item['arcones']=[];
                         $armados=carmados::where('cotizacion_id',$cot[$a]->id)->get();
                         for($b=0;$b<count($armados);$b++){
                             $arm=[];
-                            $arm['Sku']=$armados[$b]['sku'];
-                            $arm['Nombre']=$armados[$b]['nom'];
-                            $arm['Gama']=$armados[$b]['gama'];
-                            $arm['Cantidad']=$armados[$b]['cant'];
-                            $arm['Precio_Unitario_Sin_Iva']=$armados[$b]['prec_redond'];
-                            $arm['Total']=$armados[$b]['tot'];
-                            $arm['Tipo']=$armados[$b]['tip'];
-                            array_push($item['Arcones'],$arm);
+                            $arm['sku']=$armados[$b]['sku'];
+                            $arm['nombre']=$armados[$b]['nom'];
+                            $arm['gama']=$armados[$b]['gama'];
+                            $arm['cantidad']=$armados[$b]['cant'];
+                            $arm['precio_unitario_sin_iva']=$armados[$b]['prec_redond'];
+                            $arm['total']=$armados[$b]['tot'];
+                            $arm['tipo']=$armados[$b]['tip'];
+                            array_push($item['arcones'],$arm);
                         }
                     array_push($data['cotizaciones'],$item);
                     }
                 }   
-            return response()->json(['data'=>$data,"message"=>"success","code"=>200]);
+            return response()->json(['data'=>$data,"message"=>"success","code"=>200],200);
         }else{
-            return response()->json(['data'=>[],"message"=>"usuario no encontrado","code"=>404]);
+            return response()->json(['data'=>[],"message"=>"usuario no encontrado","code"=>404],404);
         }
         }else{
-            return response()->json(['data'=>[],"message"=>"token invalido","code"=>403]);
+            return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
         }
+    }
+    public function delete($id)
+    {
+        //
+        // return cotizaciones::find($id);
+        cotizaciones::find($id)->delete();
+        return response()->json(['data'=>[],"message"=>"Borrado con éxito","code"=>200],200);
     }
 }

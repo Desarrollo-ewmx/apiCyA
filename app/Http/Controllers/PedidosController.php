@@ -85,23 +85,23 @@ class PedidosController extends Controller
                     for($a=0;$a<count($ped);$a++){//recolecta los datos de la cotizacion de un usuario especifico
                         if($ped[$a]["deleted_at"]==NULL){
                             $item=[];
-                            $item['Numero_Pedido']=$ped[$a]["num_pedido"];
-                            $item['Estatus_Almacen']=$ped[$a]['estat_alm'];
-                            $item['Estatus_Produccion']=$ped[$a]['estat_produc'];
-                            $item['Fecha_Estatus_Produccion']=$ped[$a]['fech_estat_produc'];   
-                            $item['Estatus_Logistica']=$ped[$a]['estat_log'];
-                            $item['Arcones']=[];
+                            $item['numero_pedido']=$ped[$a]["num_pedido"];
+                            $item['estatus_almacen']=$ped[$a]['estat_alm'];
+                            $item['estatus_produccion']=$ped[$a]['estat_produc'];
+                            $item['fecha_estatus_produccion']=$ped[$a]['fech_estat_produc'];   
+                            $item['estatus_logistica']=$ped[$a]['estat_log'];
+                            $item['arcones']=[];
                             $armados=pedidoarmado::where('pedido_id',$ped[$a]->id)->get();
                                 for($b=0;$b<count($armados);$b++){//Trae los armados y los datos de cada uno de ellos
                                     $arm=[];
-                                    $arm['Sku']=$armados[$b]['sku'];
-                                    $arm['Nombre']=$armados[$b]['nom'];
-                                    $arm['Gama']=$armados[$b]['gama'];
-                                    $arm['Cantidad']=$armados[$b]['cant'];
-                                    $arm['Precio_Unitario_Sin_Iva']=$armados[$b]['prec_redond'];
-                                    $arm['Total']=$armados[$b]['tot'];
-                                    $arm['Tipo']=$armados[$b]['tip'];
-                                    array_push($item['Arcones'],$arm);
+                                    $arm['sku']=$armados[$b]['sku'];
+                                    $arm['nombre']=$armados[$b]['nom'];
+                                    $arm['gama']=$armados[$b]['gama'];
+                                    $arm['cantidad']=$armados[$b]['cant'];
+                                    $arm['precio_unitario_sin_iva']=$armados[$b]['prec_redond'];
+                                    $arm['total']=$armados[$b]['tot'];
+                                    $arm['tipo']=$armados[$b]['tip'];
+                                    array_push($item['arcones'],$arm);
                                 }
                             array_push($data['pedidos'],$item);
                         }

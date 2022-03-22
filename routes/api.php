@@ -53,6 +53,7 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
     Route::post('cot','App\Http\Controllers\CotizacionesController@create');
     Route::put('cotizacion','App\Http\Controllers\CotizacionesController@update');
     Route::get('cotizacion','App\Http\Controllers\CotizacionesController@ver');
+    Route::delete('cotizacion/{id}','App\Http\Controllers\CotizacionesController@delete');
 
     Route::get('cotiarmados','App\Http\Controllers\CotizacionArmadosController@index');
     Route::get('prodenarmado/{id}','App\Http\Controllers\CotizacionArmadoProductosController@index');
