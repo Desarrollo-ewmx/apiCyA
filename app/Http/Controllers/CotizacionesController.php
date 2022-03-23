@@ -143,7 +143,7 @@ class CotizacionesController extends Controller
                 if($validated){
                     $fecha_actual = date("d-m-Y");
                     $coti = new Cotizaciones();
-                    $cot = Cotizaciones::orderby('created_at', 'desc')->first();
+                    $cot = Cotizaciones::orderby('created_at', 'desc')->withTrashed()->first();
                     $str = substr($cot->serie, 4);
                     $seriemasuno = (int)$str+=1;
                     $coti->serie = $cot->ser.(String)$seriemasuno;
