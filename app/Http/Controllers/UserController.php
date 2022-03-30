@@ -110,11 +110,11 @@ class UserController extends Controller
                 // return $user->save();
                 // if($request->hasfile('img')) {
                     $user->img_us_rut   = env('PREFIX');
-                    $img        = $request->file('img');
+                    // $img        = $request->file('img');
                     
-                    $nombre_archivo = 
-                    Storage::disk('s3')->put('aaaa/'.date("Y").'/perfil-'.$user->id, $img, 'public');
-                    $user->img_us   = $nombre_archivo;
+                    // $nombre_archivo = 
+                    // Storage::disk('s3')->put('aaaa/'.date("Y").'/perfil-'.$user->id, $img, 'public');
+                    // $user->img_us   = $nombre_archivo;
                 // }
                 // $user->img_us_rut = env('PREFIX');
                 // $user->img_us = $file;
