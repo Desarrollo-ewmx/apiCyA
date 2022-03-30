@@ -26,7 +26,7 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
 
     Route::post('pruebas','App\Http\Controllers\CotizacionesController@index');
     Route::post('cyaquery','App\Http\Controllers\UserController@index');
-    Route::post('userupdate','App\Http\Controllers\UserController@update');
+    Route::get('userupdate','App\Http\Controllers\UserController@update');
 
     Route::post('cotizacion','App\Http\Controllers\CotizacionesController@create');
     Route::post('useradd','App\Http\Controllers\UserController@create');
