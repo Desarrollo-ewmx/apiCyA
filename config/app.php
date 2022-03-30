@@ -162,6 +162,8 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
+        // Aws\Laravel\AwsServiceProvider::class,
+
         /*
          * Package Service Providers...
          */
@@ -191,6 +193,8 @@ return [
     */
 
     'aliases' => [
+
+        // 'AWS' => Aws\Laravel\AwsFacade::class,
 
         'App' => Illuminate\Support\Facades\App::class,
         'Arr' => Illuminate\Support\Arr::class,

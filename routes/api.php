@@ -26,6 +26,8 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
 
     Route::post('pruebas','App\Http\Controllers\CotizacionesController@index');
     Route::post('cyaquery','App\Http\Controllers\UserController@index');
+    Route::put('userupdate','App\Http\Controllers\UserController@update');
+
     Route::post('cotizacion','App\Http\Controllers\CotizacionesController@create');
     Route::post('useradd','App\Http\Controllers\UserController@create');
     Route::post('pedido','App\Http\Controllers\PedidosController@pedido');
@@ -53,9 +55,12 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
     Route::post('cot','App\Http\Controllers\CotizacionesController@create');
     Route::put('cotizacion','App\Http\Controllers\CotizacionesController@update');
     Route::get('cotizacion','App\Http\Controllers\CotizacionesController@ver');
+    Route::get('cotizacionp','App\Http\Controllers\CotizacionesController@vermas');
     Route::get('cotizaciond/{id}','App\Http\Controllers\CotizacionesController@delete');
 
-    Route::get('cotiarmados','App\Http\Controllers\CotizacionArmadosController@index');
+    Route::get('cotarmados','App\Http\Controllers\CotizacionArmadosController@index');
+    Route::post('cotarmados','App\Http\Controllers\CotizacionArmadosController@store');
+
     Route::get('prodenarmado/{id}','App\Http\Controllers\CotizacionArmadoProductosController@index');
 });
 Route::middleware('auth:api')->get('/user', function (Request $request) {

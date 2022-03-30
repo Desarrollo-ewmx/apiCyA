@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Traits\Verifytoken;
 use App\Models\carmados;
+use App\Models\CotizacionArmadoProductos;
 use App\Models\Serie;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
@@ -92,21 +93,17 @@ class CotizacionesController extends Controller
             if($this->verifica($request->token)){
                 if($validated){
                     $coti = Cotizaciones::find($request->id);
-                    // $coti = Cotizaciones::find(2);
-                    // return $coti;
                     $coti->estat = $request->has('estat') ? $request->get('estat') : $coti->estat;
                     $coti->desc_cot = $request->has('desc_cot') ? $request->get('desc_cot') : $request->desc_cot;
-                    // if($coti->desc_cot == ''){
-                    //     $coti->desc_cot = 'Sin descripcion';
-                    // }
                     $coti->tot_arm = $request->has('tot_arm') ? $request->get('tot_arm') : $request->tot_arm;
                     $coti->cost_env = $request->has('cost_env') ? $request->get('cost_env') : $request->cost_env;
                     $coti->desc = $request->has('desc') ? $request->get('desc') : $request->desc;
                     $coti->sub_total = $request->has('sub_total') ? $request->get('sub_total') : $request->sub_total;
                     $coti->iva = $request->has('iva') ? $request->get('iva') : $request->iva;
-                    // $coti->com = $request->has('com') ? $request->get('com') : $request->com;
+                    $coti->com = $request->has('com') ? $request->get('com') : $request->com;
+                    $coti->iva =  $request->has('iva') ? $request->get('iva') : $request->iva;
                     $coti->tot = $request->has('tot') ? $request->get('tot') : $request->tot;
-                    // return $coti; 
+                    $coti->updated_at = date('Y-m-d H:i:s'); 
                     $coti->save();
                     return response()->json(['data'=>[],"message"=>"Cotización actualizada con éxito","code"=>201],201);
                 }
@@ -187,7 +184,7 @@ class CotizacionesController extends Controller
         // return $request;
         if($this->verifica($request->token)){
             $data['cotizaciones']=[];
-            $cot=cotizaciones::where('user_id',$request->user_id)->get();  ////todas las cotizaciones
+            $cot=cotizaciones::where('user_id',$request->user_id)->orderBy('created_at','DESC')->get();  ////todas las cotizaciones
             if($cot){
                 for($a=0;$a<count($cot);$a++){
                     if($cot[$a]["deleted_at"]==NULL){
@@ -201,6 +198,7 @@ class CotizacionesController extends Controller
                         $armados=carmados::where('cotizacion_id',$cot[$a]->id)->get();
                         for($b=0;$b<count($armados);$b++){
                             $arm=[];
+                            $arm['id']=$armados[$b]['id'];
                             $arm['sku']=$armados[$b]['sku'];
                             $arm['nombre']=$armados[$b]['nom'];
                             $arm['gama']=$armados[$b]['gama'];
@@ -216,6 +214,55 @@ class CotizacionesController extends Controller
             return response()->json(['data'=>$data,"message"=>"success","code"=>200],200);
         }else{
             return response()->json(['data'=>[],"message"=>"usuario no encontrado","code"=>404],404);
+        }
+        }else{
+            return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
+        }
+    }
+    public function vermas(Request $request){
+        $validated = $request->validate([
+            'id'=>'required'
+        ]);
+        // return $request;
+        if($this->verifica($request->token)){
+            $data['cotizaciones']=[];
+            $cot=cotizaciones::where('id',$request->id)->get();  ////todas las cotizaciones
+            if($cot){
+                for($a=0;$a<count($cot);$a++){
+                    if($cot[$a]["deleted_at"]==NULL){
+                        $item=[];
+                        $item['id']=$cot[$a]['id'];
+                        $item['total']=$cot[$a]['tot'];
+                        $item['serie']=$cot[$a]['serie'];
+                        $item['arcones_totales']=$cot[$a]['tot_arm'];
+                        $item['fecha']=$cot[$a]['created_at'];
+                        $item['arcones']=[];
+                        $armados=carmados::where('cotizacion_id',$cot[$a]->id)->get();
+                        for($b=0;$b<count($armados);$b++){
+                            $arm=[];
+                            $arm['id']=$armados[$b]['id'];
+                            $arm['sku']=$armados[$b]['sku'];
+                            $arm['nombre']=$armados[$b]['nom'];
+                            $arm['gama']=$armados[$b]['gama'];
+                            $arm['cantidad']=$armados[$b]['cant'];
+                            $arm['precio_unitario_sin_iva']=$armados[$b]['prec_redond'];
+                            $arm['total']=$armados[$b]['tot'];
+                            $arm['tipo']=$armados[$b]['tip'];
+                            $arm['productos']=[];
+                            $productos=CotizacionArmadoProductos::where('armado_id',$armados[$b]->id)->get();
+                            for ($i=0; $i < count($productos); $i++) { 
+                                $prod=[];
+                                $prod['nombre']=$productos[$i]['produc'];
+                                array_push($arm['productos'],$prod);
+                            }
+                            array_push($item['arcones'],$arm);
+                        }
+                    array_push($data['cotizaciones'],$item);
+                    }
+                }   
+            return response()->json(['data'=>$data,"message"=>"success","code"=>200],200);
+        }else{
+            return response()->json(['data'=>[],"message"=>"Cotización no encontrada","code"=>404],404);
         }
         }else{
             return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);

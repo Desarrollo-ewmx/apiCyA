@@ -10,6 +10,7 @@ namespace App\Http\Controllers;
     use Illuminate\Support\Facades\DB;
     use App\Traits\Verifytoken;
     use Illuminate\Database\QueryException;
+    use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -97,6 +98,41 @@ class UserController extends Controller
         } catch (\Throwable $th) {
             // return $ex->getMessage();
             return response(["message"=>"error", 'error'=>$th->getMessage(),'code'=>404]);
+        }
+    }
+    public function update(Request $request){
+        try {
+            if($this->verifica($request->token)){
+                $user = User::findOrFail($request->id);
+                $user->nom = $request->nom;
+                $user->tel_mov = $request->tel_mov;
+                $user->password = $request->password;
+                // return $user->save();
+                // if($request->hasfile('img')) {
+                    $user->img_us_rut   = env('PREFIX');
+                    $img        = $request->file('img');
+                    // Storage::disk('s3')->delete($user->img_us);
+                    $nombre_archivo = 
+                    Storage::disk('s3')->put('aaaa/'.date("Y").'/perfil-'.$user->id, $img, 'public');
+                    $user->img_us   = $nombre_archivo;
+                // }
+                // $user->img_us_rut = env('PREFIX');
+                // $user->img_us = $file;
+
+
+                $user->save();
+                // return $request;
+                    // User::find($request->id)->update([
+                    //     'nom' => $request->nom,
+                    //     'tel_mov' => $request->tel_mov,
+                    //     'password' => bcrypt($request->password)
+                    // ]);
+                    return response()->json(['data'=>[],"message"=>"Usuario actualizado con éxito","code"=>201],201);
+            }else{
+                    return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
+            }
+        } catch (\Throwable $th) {
+            return response(["message"=>"error", 'error'=>$th],422);
         }
     }
 }
