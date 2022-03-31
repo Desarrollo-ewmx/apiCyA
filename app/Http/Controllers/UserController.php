@@ -109,19 +109,22 @@ class UserController extends Controller
                 $user->password = $request->password;
                 // return $user->save();
                 // if($request->hasfile('img')) {
-                    $user->img_us_rut   = env('PREFIX');
-                    // $img        = $request->file('img');
                     
-                    // $nombre_archivo = 
-                    // Storage::disk('s3')->put('aaaa/'.date("Y").'/perfil-'.$user->id, $img, 'public');
-                    // $user->img_us   = $nombre_archivo;
+
+                    $user->img_us_rut   = env('PREFIX');
+                    $img = $request->file('img');
+                    // return $img;
+                    $x = 'aaaa/'.date("Y").'/perfil-'.$user->id.$img; 
+                    Storage::disk('s3')->put( $x,$img, 'public');
+                    // $nombre_archivo = Storage::url($x);
+                    $user->img_us   = $x;
                 // }
                 // $user->img_us_rut = env('PREFIX');
                 // $user->img_us = $file;
 
 
                 $user->save();
-                // return $request;
+               
                     // User::find($request->id)->update([
                     //     'nom' => $request->nom,
                     //     'tel_mov' => $request->tel_mov,
