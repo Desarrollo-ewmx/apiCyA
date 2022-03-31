@@ -103,29 +103,37 @@ class UserController extends Controller
     public function update(Request $request){
         try {
             if($this->verifica($request->token)){
+
+                // User::where('id', '=', $request->id)->update([
+                //     'nom' => $request->nom,
+                //     'tel_mov' => $request->tel_mov,
+                //     'password' => bcrypt($request->password),
+                //     'img_us_rut' => env('PREFIX'),
+                //     'img_us' => $this->subirimg($request->file('img'),$request->id)
+                // ]);
                 
                 $user = User::findOrFail($request->id);
-                // if($user->isDirty()) {
                 $user->nom = $request->nom;
                 $user->tel_mov = $request->tel_mov;
                 $user->password = $request->password;
+                $user->img_us_rut   = env('PREFIX');
+                $img = $request->file("img");
+                $nom = Storage::disk('s3')->put( 'cliente/'.date("Y").'/img-'.$user->id, $img, 'public');
+                $user->img_us   = $nom;
+                $user->save();
+
+                // if($user->isDirty()) {
                 // return $user->save();
                 // if($request->hasfile('img')) {
                     
-                $user->img_us_rut   = env('PREFIX');
-                $img = $request->file("img");
                     // return $img;
                     // $x = 'aaaa/'.date("Y").'/perfil-'.$user->id.$img;
                     // return $x; 
-                $nom = Storage::disk('s3')->put( 'cliente/'.date("Y").'/img-'.$user->id, $img, 'public');
                     // $nombre_archivo = Storage::url($x);
-                    
-                $user->img_us   = $nom;
                 // }
                 // $user->img_us_rut = env('PREFIX');
                 // $user->img_us = $file;
                 // }
-                $user->save();
                     // User::find($request->id)->update([
                     //     'nom' => $request->nom,
                     //     'tel_mov' => $request->tel_mov,
@@ -138,6 +146,12 @@ class UserController extends Controller
         } catch (\Throwable $th) {
             return response(["message"=>"error", 'error'=>$th],422);
         }
+    }
+    public function subirimg($img,$id){
+        $this->img=$img;
+        $this->id=$id;
+        $nom = Storage::disk('s3')->put( 'cliente/'.date("Y").'/img-'.$this->id, $this->img, 'public');
+        return $nom;
     }
 }
 
