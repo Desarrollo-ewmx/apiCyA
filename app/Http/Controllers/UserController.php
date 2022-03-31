@@ -103,34 +103,35 @@ class UserController extends Controller
     public function update(Request $request){
         try {
             if($this->verifica($request->token)){
+                
                 $user = User::findOrFail($request->id);
+                // if($user->isDirty()) {
                 $user->nom = $request->nom;
                 $user->tel_mov = $request->tel_mov;
                 $user->password = $request->password;
                 // return $user->save();
                 // if($request->hasfile('img')) {
                     
-
-                    $user->img_us_rut   = env('PREFIX');
-                    $img = $request->file('img');
+                $user->img_us_rut   = env('PREFIX');
+                $img = $request->file("img");
                     // return $img;
-                    $x = 'aaaa/'.date("Y").'/perfil-'.$user->id.$img; 
-                    Storage::disk('s3')->put( $x,$img, 'public');
+                    // $x = 'aaaa/'.date("Y").'/perfil-'.$user->id.$img;
+                    // return $x; 
+                $nom = Storage::disk('s3')->put( 'cliente/'.date("Y").'/img-'.$user->id, $img, 'public');
                     // $nombre_archivo = Storage::url($x);
-                    $user->img_us   = $x;
+                    
+                $user->img_us   = $nom;
                 // }
                 // $user->img_us_rut = env('PREFIX');
                 // $user->img_us = $file;
-
-
+                // }
                 $user->save();
-               
                     // User::find($request->id)->update([
                     //     'nom' => $request->nom,
                     //     'tel_mov' => $request->tel_mov,
                     //     'password' => bcrypt($request->password)
                     // ]);
-                    return response()->json(['data'=>[],"message"=>"Usuario actualizado con éxito","code"=>201],201);
+                return response()->json(['data'=>[],"message"=>"Usuario actualizado con éxito","code"=>201],201);
             }else{
                     return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
             }
