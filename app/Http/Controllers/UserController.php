@@ -11,6 +11,8 @@ namespace App\Http\Controllers;
     use App\Traits\Verifytoken;
     use Illuminate\Database\QueryException;
     use Illuminate\Support\Facades\Storage;
+    use App\Notifications\NotificacionPasswordCambiado;
+    use Illuminate\Support\Str;
 
 class UserController extends Controller
 {
@@ -101,44 +103,32 @@ class UserController extends Controller
         }
     }
     public function update(Request $request){
+        // try {
+        //     $paci = User::where('id','=', $request->id)->update(['nom' => $request->nom,'tel_mov' => $request->tel_mov,'password' =>bcrypt($request->password),'img_us_rut' => env('PREFIX'),'img_us' => $this->subirimg($request->file('img'),$request->id)]);
+        //     return response()->json(["message"=>"Datos actualizados","code"=>200],200);
+        // } catch (\Throwable $th) {
+        //     return response()->json(['find' => false,"message"=>$th], 404);
+        // }
         try {
             if($this->verifica($request->token)){
-
-                // User::where('id', '=', $request->id)->update([
-                //     'nom' => $request->nom,
-                //     'tel_mov' => $request->tel_mov,
-                //     'password' => bcrypt($request->password),
-                //     'img_us_rut' => env('PREFIX'),
-                //     'img_us' => $this->subirimg($request->file('img'),$request->id)
-                // ]);
+                
+        //         User::where('id', '=', $request->id)->update([
+        //             'nom' => $request->nom,
+        //             'tel_mov' => $request->tel_mov,
+        //             'password' => bcrypt($request->password),
+        //             'img_us_rut' => env('PREFIX'),
+        //             'img_us' => $this->subirimg($request->file('img'),$request->id)
+        //         ]);
                 
                 $user = User::findOrFail($request->id);
                 $user->nom = $request->nom;
                 $user->tel_mov = $request->tel_mov;
-                $user->password = $request->password;
+                $user->password = bcrypt($request->password);
                 $user->img_us_rut   = env('PREFIX');
                 $img = $request->file("img");
                 $nom = Storage::disk('s3')->put( 'cliente/'.date("Y").'/img-'.$user->id, $img, 'public');
                 $user->img_us   = $nom;
                 $user->save();
-
-                // if($user->isDirty()) {
-                // return $user->save();
-                // if($request->hasfile('img')) {
-                    
-                    // return $img;
-                    // $x = 'aaaa/'.date("Y").'/perfil-'.$user->id.$img;
-                    // return $x; 
-                    // $nombre_archivo = Storage::url($x);
-                // }
-                // $user->img_us_rut = env('PREFIX');
-                // $user->img_us = $file;
-                // }
-                    // User::find($request->id)->update([
-                    //     'nom' => $request->nom,
-                    //     'tel_mov' => $request->tel_mov,
-                    //     'password' => bcrypt($request->password)
-                    // ]);
                 return response()->json(['data'=>[],"message"=>"Usuario actualizado con éxito","code"=>201],201);
             }else{
                     return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
@@ -153,6 +143,56 @@ class UserController extends Controller
         $nom = Storage::disk('s3')->put( 'cliente/'.date("Y").'/img-'.$this->id, $this->img, 'public');
         return $nom;
     }
+    
+
+
+    
+    public function mensajecambio($correo){
+        try {
+            $plantilla=DB::table('plantillas')->where("id",3)->first();
+            if($this->creaclave($correo)){
+                $invitado = User::where('email_registro',$correo)->first();
+                $invitado->notify(new NotificacionPasswordCambiado($plantilla));
+                return response()->json(['data'=>[],"message"=>"Correo enviado con éxito","code"=>201],201);
+            }else{
+                return response()->json(['data'=>[],"message"=>"Email no encontrado","code"=>404],404);
+            }
+        } catch (\Throwable $th) {
+            return response(["message"=>"error", 'error'=>$th],422);
+        }
+        // return $plantilla[0]->dis_de_la_plant;
+        // $invitado->email = $invitado->email;
+        // $invitado->nom = $invitado->nom;
+        // $invitado->apell = $invitado->apell;
+        // $invitado->notify(new InvoicePaid());
+    }
+    public function cambiopass(Request $request){
+        try {
+            if($this->verifica($request->token)){
+                if($user = User::where('email_registro',$request->email_registro)->first()){
+                    if($request->pass_token===$user->pass_token){
+                        $user->password = bcrypt($request->password);
+                        $user->pass_token = null;
+                        $user->save();
+                        return response()->json(['data'=>[],"message"=>"Contraseña actualizada con éxito","code"=>201],201);
+                    }else{
+                        return response()->json(['data'=>[],"message"=>"Código de validación incorrecto","code"=>403],403);
+                    }
+                }else{
+                    return response()->json(['data'=>[],"message"=>"Correo no encontrado","code"=>404],404);
+                }
+            }else{
+                    return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
+            }
+        } catch (\Throwable $th) {
+            return response(["message"=>"error", 'error'=>$th],422);
+        }
+    }
+    public function creaclave($correo){
+        $user = User::where('email_registro',$correo)->update(['pass_token' => Str::random(18)]);
+        return $user;
+    }
 }
 
 
+// 
