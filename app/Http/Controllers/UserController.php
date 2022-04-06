@@ -173,7 +173,7 @@ class UserController extends Controller
     public function cambiopass(Request $request){
         try {
             if($this->verifica($request->token)){
-                if($user = User::where('email_registro',$request->email_registro)->first()){
+                if($user = User::where('email_registro',$request->email)->first()){
                     if($request->pass_token===$user->pass_token){
                         $user->password = bcrypt($request->password);
                         $user->pass_token = null;
