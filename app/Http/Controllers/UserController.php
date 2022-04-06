@@ -156,7 +156,7 @@ class UserController extends Controller
                     $invitado->notify(new NotificacionPasswordCambiado($plantilla));
                     return response()->json(['data'=>[],"message"=>"Correo enviado con éxito","code"=>201],201);
                 }else{
-                    return response()->json(['data'=>[],"message"=>"Email no encontrado","code"=>403],403);
+                    return response()->json(['data'=>[],"message"=>"Email no encontrado","code"=>404]);
                 }
             }else{
                 return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
