@@ -147,15 +147,19 @@ class UserController extends Controller
 
 
     
-    public function mensajecambio($correo){
+    public function mensajecambio(Request $request){
         try {
-            $plantilla=DB::table('plantillas')->where("id",3)->first();
-            if($this->creaclave($correo)){
-                $invitado = User::where('email_registro',$correo)->first();
-                $invitado->notify(new NotificacionPasswordCambiado($plantilla));
-                return response()->json(['data'=>[],"message"=>"Correo enviado con éxito","code"=>201],201);
+            if($this->verifica($request->token)){
+                $plantilla=DB::table('plantillas')->where("id",3)->first();
+                if($this->creaclave($request->email)){
+                    $invitado = User::where('email_registro',$request->email)->first();
+                    $invitado->notify(new NotificacionPasswordCambiado($plantilla));
+                    return response()->json(['data'=>[],"message"=>"Correo enviado con éxito","code"=>201],201);
+                }else{
+                    return response()->json(['data'=>[],"message"=>"Email no encontrado","code"=>404],404);
+                }
             }else{
-                return response()->json(['data'=>[],"message"=>"Email no encontrado","code"=>404],404);
+                return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
             }
         } catch (\Throwable $th) {
             return response(["message"=>"error", 'error'=>$th],422);

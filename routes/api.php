@@ -63,7 +63,7 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
 
     Route::get('prodenarmado/{id}','App\Http\Controllers\CotizacionArmadoProductosController@index');
 
-    Route::post('msgpass/{correo}','App\Http\Controllers\UserController@mensajecambio');
+    Route::post('msgpassemail','App\Http\Controllers\UserController@mensajecambio');
     Route::post('msgpass','App\Http\Controllers\UserController@cambiopass');
 });
 Route::middleware('auth:api')->get('/user', function (Request $request) {
