@@ -180,10 +180,10 @@ class UserController extends Controller
                         $user->save();
                         return response()->json(['data'=>[],"message"=>"Contraseña actualizada con éxito","code"=>201],201);
                     }else{
-                        return response()->json(['data'=>[],"message"=>"Código de validación incorrecto","code"=>403],403);
+                        return response()->json(['data'=>[],"message"=>"Código de validación incorrecto","code"=>403]);
                     }
                 }else{
-                    return response()->json(['data'=>[],"message"=>"Correo no encontrado","code"=>404],404);
+                    return response()->json(['data'=>[],"message"=>"Correo no encontrado","code"=>404]);
                 }
             }else{
                     return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
