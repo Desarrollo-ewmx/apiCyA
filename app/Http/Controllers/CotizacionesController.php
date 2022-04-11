@@ -124,8 +124,7 @@ class CotizacionesController extends Controller
     {
         try {
             $validated = $request->validate([
-                'nom'=> 'nom',
-                'estat'=> 'required',
+                'nom'=> 'required',
                 'desc_cot'=> 'nullable',
                 'tot_arm'=> 'required',
                 'cost_env'=> 'required',
@@ -175,7 +174,7 @@ class CotizacionesController extends Controller
                     return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
             }
         } catch (\Throwable $th) {
-            return response(["message"=>"error", 'error'=>$th->status],422);
+            return response(["message"=>"error", 'error'=>$th],422);
         }
     }
     public function ver(Request $request){
