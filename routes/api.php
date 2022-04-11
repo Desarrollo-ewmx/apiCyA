@@ -57,6 +57,7 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
     Route::get('cotizacion','App\Http\Controllers\CotizacionesController@ver');
     Route::get('cotizacionp','App\Http\Controllers\CotizacionesController@vermas');
     Route::get('cotizaciond/{id}','App\Http\Controllers\CotizacionesController@delete');
+    Route::post('nomcot','App\Http\Controllers\CotizacionesController@updatenom');
 
     Route::get('cotarmados','App\Http\Controllers\CotizacionArmadosController@index');
     Route::post('cotarmados','App\Http\Controllers\CotizacionArmadosController@store');

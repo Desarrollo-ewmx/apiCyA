@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\DB;
 use App\Models\armados;
 use App\Models\CotizacionArmados;
 use Illuminate\Http\Request;
+use App\Models\CotizacionArmadoProductos;
+use App\Models\Producto;
 
 class CotizacionArmadosController extends Controller
 {
@@ -58,7 +60,7 @@ class CotizacionArmadosController extends Controller
                     $cota->tip = $arm->tip;
                     $cota->nom = $arm->nom;
                     /**Corregir esta parte, ya modificado se refiere que si un arcon a se modificó, entonces se va a tomar en personalizados los que se modificaron para ese usuario */
-                    if($arm->arm_de_cat == 'Si'){
+                    if($arm->num_clon > 0){
                         $cota->ya_mod = '0';
                     }else {$cota->ya_mod = '1';}
                     $cota->sku = $arm->sku;
@@ -86,16 +88,16 @@ class CotizacionArmadosController extends Controller
                     if($cota->desc_cot == ''){
                         $cota->desc_cot = 0.00;
                     }
-                    $cota->manu = $request->manu;
-                    $cota->porc = $request->porc;
-                    $cota->desc = $request->desc;
-                    $cota->sub_total = $request->sub_total;
+                    // $cota->manu = $request->manu;
+                    // $cota->porc = $request->porc;
+                    $cota->desc = 0.00;
+                    $sub = $arm->prec_redond * $request->cant;
+                    $cota->sub_total = $sub;
                     if($cota->con_iva == '' || $cota->con_iva == 'Con IVA' ){
                         $cota->con_iva == 'Con IVA';
-                    }else{$cota->con_iva = $request->con_iva;}
-                    $cota->iva = $request->iva;
-                    $cota->tot = $request->tot;
-
+                        $cota->iva = $sub * 0.16;
+                        $cota->tot = $sub*1.16;
+                    }else{$cota->con_iva = $request->con_iva; $cota->iva = $request->iva; $cota->tot = $request->tot;}
                     /*Los que dicen cot son para mantener los precios al momento de la facturación y se tendrán que actualizar cuando se convierta en pedido, asignandole los precios de la cotización hasta ese momento
                     $cota->prec_cot = ;
                     $cota->sub_tot_cot = ;
@@ -112,16 +114,16 @@ class CotizacionArmadosController extends Controller
 
 
                     $prodenarmado = DB::table('armado_tiene_productos')->where('armado_id',$request->id_armado)->get();
-                    // $arr['productos']=[];
+                    $arr['productos']=[];
                     for ($i=0; $i < count($prodenarmado); $i++) {
                         $prod = DB::table('productos')->where('id',$prodenarmado[$i]->producto_id)->get();
-                        return $prod;
-                        // $arreglo=[]; 
-                        // $arreglo['armado_id'] = $prodenarmado[$i]->armado_id;
-                        // $arreglo['producto_id'] = $prodenarmado[$i]->producto_id;
-                        // array_push($arr['productos'],$arreglo);
+                        // return $prod;
+                        $arreglo=[]; 
+                        $arreglo['armado_id'] = $prodenarmado[$i]->armado_id;
+                        $arreglo['producto_id'] = $prodenarmado[$i]->producto_id;
+                        array_push($arr['productos'],$arreglo);
                     }
-                    // return $arr;
+                    return $this->rellenarcatp($arr['productos'],$request->id_armado);
 
                     // $cota->id_producto = id_producto; 
                     // $cota->cant = cant; 
@@ -189,5 +191,37 @@ class CotizacionArmadosController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function rellenarcatp($productos,$armado_id){
+        for ($i=0; $i < count($productos); $i++) {
+            // return $productos[$i]['producto_id'];
+            $producto = Producto::find($productos[$i]['producto_id']);
+            // return $producto;
+            $catp = new CotizacionArmadoProductos();
+            $catp->id_producto = $productos[$i]['producto_id'];
+            $catp->cant = 1; 
+            $catp->produc = $producto->produc; 
+            $catp->sku = $producto->sku; 
+            $catp->marc = $producto->marc; 
+            $catp->tip = $producto->tip; 
+            $catp->tam = $producto->tam; 
+            $catp->alto = $producto->alto; 
+            $catp->ancho = $producto->ancho; 
+            $catp->largo = $producto->largo; 
+            $catp->cost_arm = $producto->cost_arm; 
+            $catp->prove = $producto->prove; 
+            $catp->prec_prove = $producto->prec_prove; 
+            $catp->utilid = $producto->utilid; 
+            $catp->prec_clien = $producto->prec_clien; 
+            $catp->categ = $producto->categ; 
+            $catp->etiq = $producto->etiq; 
+            $catp->pes = $producto->pes; 
+            $catp->cod_barras = $producto->cod_barras; 
+            $catp->armado_id = $armado_id;
+            $catp->save();
+            return $catp;        
+        }
+        // return count($productos);
     }
 }

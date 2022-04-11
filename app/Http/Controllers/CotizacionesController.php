@@ -124,6 +124,7 @@ class CotizacionesController extends Controller
     {
         try {
             $validated = $request->validate([
+                'nom'=> 'nom',
                 'estat'=> 'required',
                 'desc_cot'=> 'nullable',
                 'tot_arm'=> 'required',
@@ -143,6 +144,7 @@ class CotizacionesController extends Controller
                     $cot = Cotizaciones::orderby('created_at', 'desc')->withTrashed()->first();
                     $str = substr($cot->serie, 4);
                     $seriemasuno = (int)$str+=1;
+                    $coti->nom=$request->nom;
                     $coti->serie = $cot->ser.(String)$seriemasuno;
                     $coti->ser = $cot->ser;
                     $coti->estat = 'Abierta';
@@ -189,6 +191,7 @@ class CotizacionesController extends Controller
                 for($a=0;$a<count($cot);$a++){
                     if($cot[$a]["deleted_at"]==NULL){
                         $item=[];
+                        $item['nom']=$cot[$a]['nom'];
                         $item['id']=$cot[$a]['id'];
                         $item['total']=$cot[$a]['tot'];
                         $item['serie']=$cot[$a]['serie'];
@@ -231,6 +234,7 @@ class CotizacionesController extends Controller
                 for($a=0;$a<count($cot);$a++){
                     if($cot[$a]["deleted_at"]==NULL){
                         $item=[];
+                        $item['nom']=$cot[$a]['nom'];
                         $item['id']=$cot[$a]['id'];
                         $item['total']=$cot[$a]['tot'];
                         $item['serie']=$cot[$a]['serie'];
@@ -275,4 +279,21 @@ class CotizacionesController extends Controller
         cotizaciones::find($id)->delete();
         return response()->json(['data'=>[],"message"=>"Borrado con éxito","code"=>200],200);
     }
+
+    public function updatenom(Request $request)
+    {
+        try {
+            if($this->verifica($request->token)){
+                // $coti = Cotizaciones::find($request->id);
+                Cotizaciones::where('id',$request->id)->update([
+                    'nom' => $request->nom
+                ]);
+                return response()->json(['data'=>[],"message"=>"Nombre de cotización actualizada con éxito","code"=>201],201);
+                }
+        } catch (\Throwable $th) {
+            return response(["message"=>"error", 'error'=>$th],422);
+        }
+    }
+
+
 }
