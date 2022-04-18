@@ -66,6 +66,9 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
 
     Route::post('msgpassemail','App\Http\Controllers\UserController@mensajecambio');
     Route::post('msgpass','App\Http\Controllers\UserController@cambiopass');
+
+    Route::post('updatecot','App\Http\Controllers\CotizacionArmadosController@updatecot');
+
 });
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
