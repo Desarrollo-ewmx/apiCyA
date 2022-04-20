@@ -192,6 +192,8 @@ class CotizacionesController extends Controller
                         $item=[];
                         $item['nom']=$cot[$a]['nom'];
                         $item['id']=$cot[$a]['id'];
+                        $item['sub_total']=$cot[$a]['sub_total'];
+                        $item['iva']=$cot[$a]['iva'];
                         $item['total']=$cot[$a]['tot'];
                         $item['serie']=$cot[$a]['serie'];
                         $item['arcones_totales']=$cot[$a]['tot_arm'];
