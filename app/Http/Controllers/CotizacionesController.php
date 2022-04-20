@@ -251,6 +251,7 @@ class CotizacionesController extends Controller
                             $arm['precio_unitario_sin_iva']=$armados[$b]['prec_redond'];
                             $arm['total']=$armados[$b]['tot'];
                             $arm['tipo']=$armados[$b]['tip'];
+                            $arm['img']=$armados[$b]['img_rut'].$armados[$b]['img_nom'];
                             $arm['productos']=[];
                             $productos=CotizacionArmadoProductos::where('armado_id',$armados[$b]->id)->get();
                             for ($i=0; $i < count($productos); $i++) { 

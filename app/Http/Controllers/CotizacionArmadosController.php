@@ -161,8 +161,40 @@ class CotizacionArmadosController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
+        try {
+            if($this->verifica($request->token)){
+                    $cota = CotizacionArmados::where('id', '=', $request->id)->first();
+                    // return $cota;
+                    $arm = armados::find($request->id_armado);
+                    // return 'estoy dentro';
+                    // return $cota->cant .' > '. $request->cant;
+                    $cota->cant = $request->cant;
+                    $cota->cant_direc_carg = $request->cant_direc_carg;
+                    $cota->cost_env = $request->cost_env;
+                    $sub = $arm->prec_redond * $request->cant;
+                    $cota->sub_total = $sub;
+                    if($cota->con_iva == '' || $cota->con_iva == 'Con IVA' ){
+                        $cota->con_iva == 'Con IVA';
+                        $cota->iva = $sub * 0.16;
+                        $cota->tot = $sub * 1.16;
+                    }else{$cota->con_iva = $request->con_iva; $cota->iva = $request->iva; $cota->tot = $request->tot;}
+                    $cota->cotizacion_id = $request->cotizacion_id; 
+                    $cota->update();
+                    if($cota->cant < $request->cant){
+                        // return $cota;
+                        $this->updatecotmas($cota,$request);
+
+                    }
+                    // return $cota->id; 
+                    return response()->json(['data'=>[],"message"=>"Cotización regristrada con éxito","code"=>201]);
+            }else{
+                    return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
+            }
+        } catch (\Throwable $th) {
+            return response(["message"=>"error", 'error'=>$th],422);
+        }
     }
 
     /**
@@ -216,6 +248,26 @@ class CotizacionArmadosController extends Controller
                 $iva=$coti->iva + $cotizacion->iva;
                 $tot=$coti->tot + $cotizacion->tot;
                 $cost_env=$coti->cost_env + $cotizacion->cost_env;
+                Cotizaciones::where('id',$cotizacion->cotizacion_id)->update([
+                    'tot_arm' => $tot_arm,
+                    'sub_total' => $sub_total,
+                    'iva' => $iva,
+                    'tot' => $tot,
+                    'cost_env' => $cost_env
+                ]);
+        } catch (\Throwable $th) {
+            return response(["message"=>"error", 'error'=>$th],422);
+        }
+    }
+
+    public function updatecotmas($cotizacion,$request){
+        try {
+                $coti = Cotizaciones::find($cotizacion->cotizacion_id);
+                $tot_arm=$coti->tot_arm + $request->cant;
+                $sub_total=$coti->sub_total + $request->sub_total;
+                $iva=$coti->iva + $request->iva;
+                $tot=$coti->tot + $request->tot;
+                $cost_env=$coti->cost_env + $request->cost_env;
                 Cotizaciones::where('id',$cotizacion->cotizacion_id)->update([
                     'tot_arm' => $tot_arm,
                     'sub_total' => $sub_total,
