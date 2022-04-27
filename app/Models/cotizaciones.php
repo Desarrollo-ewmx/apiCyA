@@ -10,5 +10,10 @@ class cotizaciones extends Model
 {
     use HasFactory;
     use SoftDeletes;
-    protected $table="cotizaciones";
+    protected $table = "cotizaciones";
+
+    public function armados()
+    {
+        return $this->hasMany('App\Models\CotizacionArmados','cotizacion_id')->orderBy('id', 'DESC');
+    }
 }

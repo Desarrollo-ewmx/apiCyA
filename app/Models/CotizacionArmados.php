@@ -9,4 +9,9 @@ class CotizacionArmados extends Model
 {
     use HasFactory;
     protected $table = 'cotizacion_tiene_armados';
+
+    public function cotizacion()
+    {
+        return $this->belongsTo('App\Models\cotizaciones','cotizacion_id')->orderBy('id', 'DESC');
+    }
 }

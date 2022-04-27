@@ -38,29 +38,18 @@ class CotizacionArmadosController extends Controller
         try {
             $validated = $request->validate([
                 'id_armado' => 'required', 
-                // 'img_rut' => 'nullable', 
-                // 'img_nom' => 'nullable', 
-                // 'es_de_regalo' => 'required', 
-                'cant' => 'required', 
+                'cant' => 'required',
                 'cant_direc_carg' => 'required',
-                'cost_env' => 'required', 
-                // 'tip_desc' => 'nullable', 
-                // 'manu' => 'nullable', 
-                // 'porc' => 'nullable', 
-                // 'desc' => 'required', 
-                // 'sub_total' => 'required', 
-                // 'con_iva' => 'required', 
-                // 'iva' => 'required', 
-                // 'tot' => 'required',
+                'cost_env' => 'required',
                 'cotizacion_id' => 'required'
             ]);
-            if($this->verifica($request->token)){
-                if($validated){
+            if ($this->verifica($request->token)) {
+                if ($validated) {
                     $cota = new CotizacionArmados();
                     $arm = armados::find($request->id_armado);
-                    if($arm->img_rut_min != null){
-                        $nueva_ruta = 'cotizacion/'.time().'.jpeg';
-                        Storage::disk('s3')->copy($arm->img_nom_min , $nueva_ruta); 
+                    if ($arm->img_rut_min != null) {
+                        $nueva_ruta = 'cotizacion/' . time() . '.jpeg';
+                        Storage::disk('s3')->copy($arm->img_nom_min, $nueva_ruta);
                         $cota->img_rut = $arm->img_rut_min;
                         $cota->img_nom = $nueva_ruta;
                     }
@@ -68,9 +57,11 @@ class CotizacionArmadosController extends Controller
                     $cota->tip = $arm->tip;
                     $cota->nom = $arm->nom;
                     /**Corregir esta parte, ya modificado se refiere que si un arcon a se modificó, entonces se va a tomar en personalizados los que se modificaron para ese usuario */
-                    if($arm->num_clon > 0){
+                    if ($arm->num_clon > 0) {
                         $cota->ya_mod = '0';
-                    }else {$cota->ya_mod = '1';}
+                    } else {
+                        $cota->ya_mod = '1';
+                    }
                     $cota->sku = $arm->sku;
                     $cota->gama = $arm->gama;
                     $cota->dest = $arm->dest;
@@ -80,9 +71,11 @@ class CotizacionArmadosController extends Controller
                     $cota->ancho = $arm->ancho;
                     $cota->largo = $arm->largo;
                     // $cota->es_de_regalo = $request->es_de_regalo;
-                    if($request->es_de_regalo =='' || $request->es_de_regalo =='No'){
+                    if ($request->es_de_regalo == '' || $request->es_de_regalo == 'No') {
                         $cota->es_de_regalo = 'No';
-                    }else{$cota->es_de_regalo = 'Si';}
+                    } else {
+                        $cota->es_de_regalo = 'Si';
+                    }
                     $cota->cant = $request->cant;
                     $cota->cant_direc_carg = $request->cant_direc_carg;
                     $cota->prec_de_comp = $arm->prec_de_comp;
@@ -90,56 +83,58 @@ class CotizacionArmadosController extends Controller
                     $cota->desc_esp = $arm->desc_esp;
                     $cota->prec_redond = $arm->prec_redond;
                     $cota->cost_env = $request->cost_env;
-                    if($cota->tip_desc == ''){
+                    if ($cota->tip_desc == '') {
                         $cota->tip_desc = 'Sin descuento';
                     }
-                    if($cota->desc_cot == ''){
+                    if ($cota->desc_cot == '') {
                         $cota->desc_cot = 0.00;
                     }
-                    // $cota->manu = $request->manu;
-                    // $cota->porc = $request->porc;
+                    $cota->manu = $request->manu;
+                    $cota->porc = $request->porc;
                     $cota->desc = 0.00;
                     $sub = $arm->prec_redond * $request->cant;
                     $cota->sub_total = $sub;
-                    if($cota->con_iva == '' || $cota->con_iva == 'Con IVA' ){
+                    if ($cota->con_iva == '' || $cota->con_iva == 'Con IVA') {
                         $cota->con_iva == 'Con IVA';
                         $cota->iva = $sub * 0.16;
                         $cota->tot = $sub * 1.16;
-                    }else{$cota->con_iva = $request->con_iva; $cota->iva = $request->iva; $cota->tot = $request->tot;}
+                    } else {
+                        $cota->con_iva = $request->con_iva;
+                        $cota->iva = $request->iva;
+                        $cota->tot = $request->tot;
+                    }
                     /*Los que dicen cot son para mantener los precios al momento de la facturación y se tendrán que actualizar cuando se convierta en pedido, asignandole los precios de la cotización hasta ese momento
                     $cota->prec_cot = ;
                     $cota->sub_tot_cot = ;
                     $cota->desc_cot = ;
                     $cota->iva_cot = ;
                     $cota->tot_cot = ;*/
-                    
-                    $cota->cotizacion_id = $request->cotizacion_id; 
+                    $cota->cotizacion_id = $request->cotizacion_id;
                     $cota->created_at_arm = 'Apiecommerce';
                     $cota->created_at = date('Y-m-d H:i:s');
-                    $cota->updated_at = date('Y-m-d H:i:s'); 
+                    $cota->updated_at = date('Y-m-d H:i:s');
                     // return $cota;
                     $cota->save();
-
-                    $prodenarmado = DB::table('armado_tiene_productos')->where('armado_id',$request->id_armado)->get();
-                    $arr['productos']=[];
-                    for ($i=0; $i < count($prodenarmado); $i++) {
-                        $prod = DB::table('productos')->where('id',$prodenarmado[$i]->producto_id)->get();
-                        // return $prod;
-                        $arreglo=[]; 
+                    $prodenarmado = DB::table('armado_tiene_productos')->where('armado_id', $request->id_armado)->get();
+                    $arr['productos'] = [];
+                    for ($i = 0; $i < count($prodenarmado); $i++) {
+                        $prod = DB::table('productos')->where('id', $prodenarmado[$i]->producto_id)->get();
+                        $arreglo = [];
                         $arreglo['armado_id'] = $prodenarmado[$i]->armado_id;
                         $arreglo['producto_id'] = $prodenarmado[$i]->producto_id;
-                        array_push($arr['productos'],$arreglo);
+                        array_push($arr['productos'], $arreglo);
                     }
-                    $this->rellenarcatp($arr['productos'],$cota->id);
-                    $this->updatecot($cota);
-                    // return $cota->id; 
-                    return response()->json(['data'=>[],"message"=>"Cotización regristrada con éxito","code"=>201]);
+                    $this->rellenarcatp($arr['productos'], $cota->id);
+                    $cot = Cotizaciones::with('armados')->where('id', $cota->cotizacion_id)->first();
+                    $this->calculaValoresCotizacion($cot);
+                    // $this->updatecot($cota); 
+                    return response()->json(['data' => [], "message" => "Cotización regristrada con éxito", "code" => 201]);
                 }
-            }else{
-                    return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
+            } else {
+                return response()->json(['data' => [], "message" => "token invalido", "code" => 403], 403);
             }
         } catch (\Throwable $th) {
-            return response(["message"=>"error", 'error'=>$th],422);
+            return response(["message" => "error", 'error' => $th], 422);
         }
     }
 
@@ -164,36 +159,25 @@ class CotizacionArmadosController extends Controller
     public function update(Request $request)
     {
         try {
-            if($this->verifica($request->token)){
-                    $cota = CotizacionArmados::where('id', '=', $request->id)->first();
-                    // return $cota;
-                    $arm = armados::find($request->id_armado);
-                    // return 'estoy dentro';
-                    // return $cota->cant .' > '. $request->cant;
-                    $cota->cant = $request->cant;
-                    $cota->cant_direc_carg = $request->cant_direc_carg;
-                    $cota->cost_env = $request->cost_env;
-                    $sub = $arm->prec_redond * $request->cant;
-                    $cota->sub_total = $sub;
-                    if($cota->con_iva == '' || $cota->con_iva == 'Con IVA' ){
-                        $cota->con_iva == 'Con IVA';
-                        $cota->iva = $sub * 0.16;
-                        $cota->tot = $sub * 1.16;
-                    }else{$cota->con_iva = $request->con_iva; $cota->iva = $request->iva; $cota->tot = $request->tot;}
-                    $cota->cotizacion_id = $request->cotizacion_id; 
-                    $cota->update();
-                    if($cota->cant < $request->cant){
-                        // return $cota;
-                        $this->updatecotmas($cota,$request);
-
+            if ($this->verifica($request->token)) {
+                $cota = CotizacionArmados::where('id', '=', $request->id)->first();
+                // return $cota;
+                $arm = armados::find($request->id_armado);
+                if ($cota->cant != $request->cant) {
+                    if($this->actualizadatos($cota, $arm, $request)){
+                        // return 'Si entra';
+                        $cot = Cotizaciones::with('armados')->where('id', $cota->cotizacion_id)->first();
+                        $this->calculaValoresCotizacion($cot);
                     }
-                    // return $cota->id; 
-                    return response()->json(['data'=>[],"message"=>"Cotización regristrada con éxito","code"=>201]);
-            }else{
-                    return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
+                } else {
+                    return response()->json(['data' => [], "message" => "Cantidades iguales", "code" => 201]);
+                }
+                return response()->json(['data' => [], "message" => "Cotización regristrada con éxito", "code" => 201]);
+            } else {
+                return response()->json(['data' => [], "message" => "token invalido", "code" => 403], 403);
             }
         } catch (\Throwable $th) {
-            return response(["message"=>"error", 'error'=>$th],422);
+            return response(["message" => "error", 'error' => $th], 422);
         }
     }
 
@@ -208,75 +192,133 @@ class CotizacionArmadosController extends Controller
         //
     }
 
-    public function rellenarcatp($productos,$armado_id){
-        for ($i=0; $i < count($productos); $i++) {
+    public function rellenarcatp($productos, $armado_id)
+    {
+        for ($i = 0; $i < count($productos); $i++) {
             // return $productos[$i]['producto_id'];
             $producto = Producto::find($productos[$i]['producto_id']);
             // return $producto;
             $catp = new CotizacionArmadoProductos();
             $catp->id_producto = $productos[$i]['producto_id'];
-            $catp->cant = 1; 
-            $catp->produc = $producto->produc; 
-            $catp->sku = $producto->sku; 
-            $catp->marc = $producto->marc; 
-            $catp->tip = $producto->tip; 
-            $catp->tam = $producto->tam; 
-            $catp->alto = $producto->alto; 
-            $catp->ancho = $producto->ancho; 
-            $catp->largo = $producto->largo; 
-            $catp->cost_arm = $producto->cost_arm; 
-            $catp->prove = $producto->prove; 
-            $catp->prec_prove = $producto->prec_prove; 
-            $catp->utilid = $producto->utilid; 
-            $catp->prec_clien = $producto->prec_clien; 
-            $catp->categ = $producto->categ; 
-            $catp->etiq = $producto->etiq; 
-            $catp->pes = $producto->pes; 
-            $catp->cod_barras = $producto->cod_barras; 
+            $catp->cant = 1;
+            $catp->produc = $producto->produc;
+            $catp->sku = $producto->sku;
+            $catp->marc = $producto->marc;
+            $catp->tip = $producto->tip;
+            $catp->tam = $producto->tam;
+            $catp->alto = $producto->alto;
+            $catp->ancho = $producto->ancho;
+            $catp->largo = $producto->largo;
+            $catp->cost_arm = $producto->cost_arm;
+            $catp->prove = $producto->prove;
+            $catp->prec_prove = $producto->prec_prove;
+            $catp->utilid = $producto->utilid;
+            $catp->prec_clien = $producto->prec_clien;
+            $catp->categ = $producto->categ;
+            $catp->etiq = $producto->etiq;
+            $catp->pes = $producto->pes;
+            $catp->cod_barras = $producto->cod_barras;
             $catp->armado_id = $armado_id;
             $catp->save();
             // return $catp;        
         }
         // return count($productos);
     }
-    
-    public function updatecot($cotizacion){
-        try {
-                $coti = Cotizaciones::find($cotizacion->cotizacion_id);
-                $tot_arm=$coti->tot_arm + $cotizacion->cant;
-                $sub_total=$coti->sub_total + $cotizacion->sub_total;
-                $iva=$coti->iva + $cotizacion->iva;
-                $tot=$coti->tot + $cotizacion->tot;
-                $cost_env=$coti->cost_env + $cotizacion->cost_env;
-                Cotizaciones::where('id',$cotizacion->cotizacion_id)->update([
-                    'tot_arm' => $tot_arm,
-                    'sub_total' => $sub_total,
-                    'iva' => $iva,
-                    'tot' => $tot,
-                    'cost_env' => $cost_env
-                ]);
-        } catch (\Throwable $th) {
-            return response(["message"=>"error", 'error'=>$th],422);
+
+    public function actualizadatos($cota, $arm, $request)
+    {
+        $cota->cant = $request->cant;
+        $cota->cant_direc_carg = $request->cant_direc_carg;
+        $cota->cost_env = $request->cost_env;
+        $sub = $arm->prec_redond * $request->cant;
+        $cota->sub_total = $sub;
+        if ($cota->con_iva == '' || $cota->con_iva == 'Con IVA') {
+            $cota->con_iva == 'Con IVA';
+            $cota->iva = $sub * 0.16;
+            $cota->tot = $sub * 1.16;
+        } else {
+            $cota->con_iva = $request->con_iva;
+            $cota->iva = $request->iva;
+            $cota->tot = $request->tot;
+        }
+        $cota->cotizacion_id = $request->cotizacion_id;
+        $cota->update();
+        return $cota;
+    }
+
+    public function calculaValoresCotizacion($cotizacion)
+    {
+        // return $cotizacion->armados;
+        $cotizacion->tot_arm    = $cotizacion->armados->sum('cant');
+        $cotizacion->cost_env   = $cotizacion->armados->sum('cost_env');
+        $cotizacion->desc       = $cotizacion->armados->sum('desc');
+        $cotizacion->sub_total  = $cotizacion->armados->sum('sub_total');
+        $cotizacion->iva        = $cotizacion->armados->sum('iva');
+
+        if ($cotizacion->con_com == 'on') {
+            $total                = $cotizacion->armados->sum('tot');
+            $comision             = $total * 1.05;
+            $cotizacion->com      = $comision - $total;
+            $cotizacion->tot      = $comision;
+        } else {
+            $cotizacion->com = 0.00;
+            $cotizacion->tot = $cotizacion->armados->sum('tot');
+        }
+        $cotizacion->save();
+        return $cotizacion;
+    }
+    public function delete($id){
+        $arm = CotizacionArmados::with('cotizacion')->findOrFail($id);
+        if($arm->cotizacion->estat != 'Abierta'){
+            return response(["message" => "La cotización no se encuentra abierta, por lo que no se puede eliminar","code" => 404]);
+        }else{
+            $arm->forceDelete();
+            $this->calculaValoresCotizacion($arm->cotizacion);
+            return response()->json(['data' => [], "message" => "El armado: " .$arm->nom. " fue eliminado con éxito", "code" => 201]);
         }
     }
 
-    public function updatecotmas($cotizacion,$request){
-        try {
-                $coti = Cotizaciones::find($cotizacion->cotizacion_id);
-                $tot_arm=$coti->tot_arm + $request->cant;
-                $sub_total=$coti->sub_total + $request->sub_total;
-                $iva=$coti->iva + $request->iva;
-                $tot=$coti->tot + $request->tot;
-                $cost_env=$coti->cost_env + $request->cost_env;
-                Cotizaciones::where('id',$cotizacion->cotizacion_id)->update([
-                    'tot_arm' => $tot_arm,
-                    'sub_total' => $sub_total,
-                    'iva' => $iva,
-                    'tot' => $tot,
-                    'cost_env' => $cost_env
-                ]);
-        } catch (\Throwable $th) {
-            return response(["message"=>"error", 'error'=>$th],422);
-        }
-    }
+    // public function updatecot($cotizacion)
+    // {
+    //     try {
+    //         $coti = Cotizaciones::find($cotizacion->cotizacion_id);
+    //         $tot_arm = $coti->tot_arm + $cotizacion->cant;
+    //         $sub_total = $coti->sub_total + $cotizacion->sub_total;
+    //         $iva = $coti->iva + $cotizacion->iva;
+    //         $tot = $coti->tot + $cotizacion->tot;
+    //         $cost_env = $coti->cost_env + $cotizacion->cost_env;
+    //         Cotizaciones::where('id', $cotizacion->cotizacion_id)->update([
+    //             'tot_arm' => $tot_arm,
+    //             'sub_total' => $sub_total,
+    //             'iva' => $iva,
+    //             'tot' => $tot,
+    //             'cost_env' => $cost_env
+    //         ]);
+    //     } catch (\Throwable $th) {
+    //         return response(["message" => "error", 'error' => $th], 422);
+    //     }
+    // }
+
+    // public function updatecotmas($cotizacion, $request)
+    // {
+    //     try {
+    //         // return $coti = Cotizaciones::find($cotizacion->cotizacion_id);
+    //         return $coti = Cotizaciones::with('armados')->where('id', $cotizacion->cotizacion_id)->first();
+    //         $tot_arm = $coti->tot_arm + ($cotizacion->cant - $request->cant);
+    //         $sub_total = $coti->sub_total + $request->sub_total;
+    //         $iva = $coti->iva + $request->iva;
+    //         $tot = $coti->tot + $request->tot;
+    //         $cost_env = $coti->cost_env + $request->cost_env;
+    //         return 'Total de armados ' . $tot_arm . 'subtotal: ' . $sub_total . 'Iva: ' . $iva . 'Total en efectivo: ' . $tot . 'Costo de envio: ' . $cost_env;
+    //         Cotizaciones::where('id', $cotizacion->cotizacion_id)->update([
+    //             'tot_arm' => $tot_arm,
+    //             'sub_total' => $sub_total,
+    //             'iva' => $iva,
+    //             'tot' => $tot,
+    //             'cost_env' => $cost_env
+    //         ]);
+    //     } catch (\Throwable $th) {
+    //         return response(["message" => "error", 'error' => $th], 422);
+    //     }
+    // }
 }
