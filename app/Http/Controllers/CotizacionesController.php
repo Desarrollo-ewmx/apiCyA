@@ -202,6 +202,7 @@ class CotizacionesController extends Controller
                         $armados=carmados::where('cotizacion_id',$cot[$a]->id)->get();
                         for($b=0;$b<count($armados);$b++){
                             $arm=[];
+                            $arm['id_registro']=$armados[$b]['id'];
                             $arm['id']=$armados[$b]['id_armado'];
                             $arm['sku']=$armados[$b]['sku'];
                             $arm['nombre']=$armados[$b]['nom'];

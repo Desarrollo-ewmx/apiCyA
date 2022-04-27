@@ -172,7 +172,7 @@ class CotizacionArmadosController extends Controller
                 } else {
                     return response()->json(['data' => [], "message" => "Cantidades iguales", "code" => 201]);
                 }
-                return response()->json(['data' => [], "message" => "Cotización regristrada con éxito", "code" => 201]);
+                return response()->json(['data' => [], "message" => "Cantidad de armado actualizado con éxito", "code" => 201]);
             } else {
                 return response()->json(['data' => [], "message" => "token invalido", "code" => 403], 403);
             }
