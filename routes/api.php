@@ -62,7 +62,7 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
     Route::get('cotarmados','App\Http\Controllers\CotizacionArmadosController@index');
     Route::post('cotarmados','App\Http\Controllers\CotizacionArmadosController@store');
     Route::post('upcotarmados','App\Http\Controllers\CotizacionArmadosController@update');
-    Route::post('cotarmadosd/{id}','App\Http\Controllers\CotizacionArmadosController@delete');
+    Route::post('cotarmadosd','App\Http\Controllers\CotizacionArmadosController@delete');
 
     Route::get('prodenarmado/{id}','App\Http\Controllers\CotizacionArmadoProductosController@index');
 
@@ -70,6 +70,8 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
     Route::post('msgpass','App\Http\Controllers\UserController@cambiopass');
 
     Route::post('updatecot','App\Http\Controllers\CotizacionArmadosController@updatecot');
+    
+    Route::post('aprobarcot','App\Http\Controllers\PedidosController@aprobarcotizacion');
 
 });
 Route::middleware('auth:api')->get('/user', function (Request $request) {

@@ -267,14 +267,23 @@ class CotizacionArmadosController extends Controller
         $cotizacion->save();
         return $cotizacion;
     }
-    public function delete($id){
-        $arm = CotizacionArmados::with('cotizacion')->findOrFail($id);
-        if($arm->cotizacion->estat != 'Abierta'){
-            return response(["message" => "La cotización no se encuentra abierta, por lo que no se puede eliminar","code" => 404]);
-        }else{
-            $arm->forceDelete();
-            $this->calculaValoresCotizacion($arm->cotizacion);
-            return response()->json(['data' => [], "message" => "El armado: " .$arm->nom. " fue eliminado con éxito", "code" => 201]);
+    public function delete(Request $request){
+        
+        try {
+            if ($this->verifica($request->token)) {
+                $arm = CotizacionArmados::with('cotizacion')->findOrFail($request->id);
+                if($arm->cotizacion->estat != 'Abierta'){
+                    return response(["message" => "La cotización no se encuentra abierta, por lo que no se puede eliminar","code" => 404]);
+                }else{
+                    $arm->forceDelete();
+                    $this->calculaValoresCotizacion($arm->cotizacion);
+                    return response()->json(['data' => [], "message" => "El armado: " .$arm->nom. " fue eliminado con éxito", "code" => 201]);
+                }
+            } else {
+                return response()->json(['data' => [], "message" => "token invalido", "code" => 403], 403);
+            }
+        } catch (\Throwable $th) {
+            return response(["message" => "error", 'error' => $th], 422);
         }
     }
 

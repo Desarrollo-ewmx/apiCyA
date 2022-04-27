@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\pedidoarmado;
 use App\Models\pedido;
+use App\Models\cotizaciones;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Traits\Verifytoken;
@@ -119,5 +120,12 @@ class PedidosController extends Controller
             //throw $th;
             return response(["message"=>"error", 'error'=>$th->status]);
         }
+    }
+    
+    public function aprobarcotizacion(Request $request) {
+        $cotizacion = Cotizaciones::with('armados')->where('id', $request->id)->first();
+        $armados_cotizacion = $cotizacion->armados()->with('productos', 'direcciones')->get();
+        $nom_tabla = (new \App\Models\Producto())->getTable(); //Literalmente solo obtiene el nombre de la tabla en el modelo
+        return $armados_cotizacion;
     }
 }
