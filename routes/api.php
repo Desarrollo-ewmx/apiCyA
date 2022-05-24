@@ -73,6 +73,7 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
     
     Route::post('aprobarcot','App\Http\Controllers\PedidosController@aprobarcotizacion');
 
+    Route::get('direcciones','App\Http\Controllers\DireccionController@index');
 });
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
