@@ -108,10 +108,10 @@ class CotizacionesController extends Controller
                     return response()->json(['data'=>[],"message"=>"Cotización actualizada con éxito","code"=>201],201);
                 }
             }else{
-                    return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
+                    return response()->json(['data'=>[],"message"=>"token invalido","code"=>403]);
             }
         } catch (\Throwable $th) {
-            return response(["message"=>"error", 'error'=>$th],422);
+            return response(["message"=>"error", 'error'=>$th]);
         }
     }
 
@@ -171,10 +171,10 @@ class CotizacionesController extends Controller
                     return response()->json(['data'=>[],"message"=>"Cotización regristrada con éxito","code"=>201]);
                 }
             }else{
-                    return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
+                    return response()->json(['data'=>[],"message"=>"token invalido","code"=>403]);
             }
         } catch (\Throwable $th) {
-            return response(["message"=>"error", 'error'=>$th],422);
+            return response(["message"=>"error", 'error'=>$th]);
         }
     }
     public function ver(Request $request){
@@ -228,10 +228,10 @@ class CotizacionesController extends Controller
                 }   
             return response()->json(['data'=>$data,"message"=>"success","code"=>200],200);
         }else{
-            return response()->json(['data'=>[],"message"=>"usuario no encontrado","code"=>404],404);
+            return response()->json(['data'=>[],"message"=>"usuario no encontrado","code"=>404]);
         }
         }else{
-            return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
+            return response()->json(['data'=>[],"message"=>"token invalido","code"=>403]);
         }
     }
     public function vermas(Request $request){
@@ -279,10 +279,10 @@ class CotizacionesController extends Controller
                 }   
             return response()->json(['data'=>$data,"message"=>"success","code"=>200],200);
         }else{
-            return response()->json(['data'=>[],"message"=>"Cotización no encontrada","code"=>404],404);
+            return response()->json(['data'=>[],"message"=>"Cotización no encontrada","code"=>404]);
         }
         }else{
-            return response()->json(['data'=>[],"message"=>"token invalido","code"=>403],403);
+            return response()->json(['data'=>[],"message"=>"token invalido","code"=>403]);
         }
     }
     public function delete($id)
@@ -304,9 +304,54 @@ class CotizacionesController extends Controller
                 return response()->json(['data'=>[],"message"=>"Nombre de cotización actualizada con éxito","code"=>201],201);
                 }
         } catch (\Throwable $th) {
-            return response(["message"=>"error", 'error'=>$th],422);
+            return response(["message"=>"error", 'error'=>$th]);
         }
     }
 
-
+    public function paraligar(Request $request){
+        $validated = $request->validate([
+            'id'=>'required',
+            'user_id'=>"required"
+        ]);
+        // return $request;
+        if($this->verifica($request->token)){
+            $data['cotizaciones']=[];
+            $cot=cotizaciones::where('id',$request->id)->get();  ////todas las cotizaciones
+            if($cot){
+                for($a=0;$a<count($cot);$a++){
+                    if($cot[$a]["deleted_at"]==NULL && $cot[$a]["user_id"]==$request->user_id){
+                        $item=[];
+                        $item['nom']=$cot[$a]['nom'];
+                        $item['id']=$cot[$a]['id'];
+                        $item['total']=$cot[$a]['tot'];
+                        $item['serie']=$cot[$a]['serie'];
+                        $item['arcones_totales']=$cot[$a]['tot_arm'];
+                        $item['fecha']=$cot[$a]['created_at'];
+                        $item['user_id']=$cot[$a]['user_id'];
+                        $item['arcones']=[];
+                        $armados=carmados::where('cotizacion_id',$cot[$a]->id)->get();
+                        for($b=0;$b<count($armados);$b++){
+                            $arm=[];
+                            $arm['id']=$armados[$b]['id'];
+                            $arm['sku']=$armados[$b]['sku'];
+                            $arm['nombre']=$armados[$b]['nom'];
+                            $arm['gama']=$armados[$b]['gama'];
+                            $arm['cantidad']=$armados[$b]['cant'];
+                            $arm['precio_unitario_sin_iva']=$armados[$b]['prec_redond'];
+                            $arm['total']=$armados[$b]['tot'];
+                            $arm['tipo']=$armados[$b]['tip'];
+                            $arm['img']=$armados[$b]['img_rut'].$armados[$b]['img_nom'];
+                            array_push($item['arcones'],$arm);
+                        }
+                    array_push($data['cotizaciones'],$item);
+                    }
+                }   
+            return response()->json(['data'=>$data,"message"=>"success","code"=>200],200);
+        }else{
+            return response()->json(['data'=>[],"message"=>"Cotización no encontrada","code"=>404]);
+        }
+        }else{
+            return response()->json(['data'=>[],"message"=>"token invalido","code"=>403]);
+        }
+    }
 }

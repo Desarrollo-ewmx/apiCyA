@@ -85,7 +85,7 @@ class ArmadosController extends Controller
                 }
         } catch (\Throwable $th) {
             //throw $th;
-            return response()->json(['data' => null,'status'=>'error','message' =>"id del armado no encontrado"], 404);
+            return response()->json(['data' => null,'status'=>'error','message' =>"id del armado no encontrado"]);
         }
     }
 
