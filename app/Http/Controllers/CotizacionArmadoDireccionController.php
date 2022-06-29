@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Traits\Verifytoken;
 use App\Models\CotizacionArmadoTieneDirecciones;
 use App\Models\CotizacionArmados;
 use App\Models\cotizaciones;
@@ -10,6 +11,7 @@ use App\Models\carmados;
 
 class CotizacionArmadoDireccionController extends Controller
 {
+    use Verifytoken;
     /**
      * Display a listing of the resource.
      *
@@ -164,6 +166,11 @@ class CotizacionArmadoDireccionController extends Controller
     }
     public function muestradirecciones(Request $request){
         try {
+            $validated = $request->validate([
+                'token'=>'required'
+            ]);
+            //  return $request;
+            if($this->verifica($request->token)){
             $cot = cotizaciones::where('id',$request->id)->with("armados")->first();
             $item=[];
             $dir = null;
@@ -173,6 +180,7 @@ class CotizacionArmadoDireccionController extends Controller
             }
             $direcciones = $item[0];
             return response()->json(['data'=>$direcciones,"message"=>"Direcciones encontradas correctamente","code"=>200]);
+        }
         } catch (\Throwable $th) {
             return response(["message"=>"error", 'error'=>$th]);
         }
