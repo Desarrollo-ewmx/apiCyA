@@ -23,8 +23,8 @@ class CotizacionArmadosController extends Controller
     public function index()
     {
         //
-        $cot = CotizacionArmados::get();
-        return $cot;
+        // $cot = CotizacionArmados::get();
+        // return $cot;
     }
 
     /**
@@ -128,13 +128,13 @@ class CotizacionArmadosController extends Controller
                     $cot = Cotizaciones::with('armados')->where('id', $cota->cotizacion_id)->first();
                     $this->calculaValoresCotizacion($cot);
                     // $this->updatecot($cota); 
-                    return response()->json(['data' => [], "message" => "Cotización regristrada con éxito", "code" => 201]);
+                    return response()->json(['data' => [], "message" => "Arcón añadido con éxito", "code" => 201]);
                 }
             } else {
-                return response()->json(['data' => [], "message" => "token invalido", "code" => 403], 403);
+                return response()->json(['data' => [], "message" => "token invalido", "code" => 403]);
             }
         } catch (\Throwable $th) {
-            return response(["message" => "error", 'error' => $th], 422);
+            return response(["message" => "error", 'error' => $th]);
         }
     }
 
@@ -174,10 +174,10 @@ class CotizacionArmadosController extends Controller
                 }
                 return response()->json(['data' => [], "message" => "Cantidad de armado actualizado con éxito", "code" => 201]);
             } else {
-                return response()->json(['data' => [], "message" => "token invalido", "code" => 403], 403);
+                return response()->json(['data' => [], "message" => "token invalido", "code" => 403]);
             }
         } catch (\Throwable $th) {
-            return response(["message" => "error", 'error' => $th], 422);
+            return response(["message" => "error", 'error' => $th]);
         }
     }
 
@@ -280,10 +280,10 @@ class CotizacionArmadosController extends Controller
                     return response()->json(['data' => [], "message" => "El armado: " .$arm->nom. " fue eliminado con éxito", "code" => 201]);
                 }
             } else {
-                return response()->json(['data' => [], "message" => "token invalido", "code" => 403], 403);
+                return response()->json(['data' => [], "message" => "token invalido", "code" => 403]);
             }
         } catch (\Throwable $th) {
-            return response(["message" => "error", 'error' => $th], 422);
+            return response(["message" => "error", 'error' => $th]);
         }
     }
 

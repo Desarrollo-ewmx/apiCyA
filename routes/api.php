@@ -75,6 +75,11 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
 
     Route::post('direcciones','App\Http\Controllers\DireccionController@store');
     Route::get('cotuserid','App\Http\Controllers\CotizacionesController@paraligar');
+    Route::get('cotarmdir','App\Http\Controllers\CotizacionArmadoDireccionController@show');
+    Route::get('tabdir','App\Http\Controllers\CotizacionArmadoDireccionController@muestradirecciones');
+
+    
+    Route::get('llenacatd','App\Http\Controllers\CotizacionArmadoDireccionController@store');
 });
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
