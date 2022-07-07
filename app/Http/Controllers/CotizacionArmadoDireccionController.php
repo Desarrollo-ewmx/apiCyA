@@ -33,55 +33,106 @@ class CotizacionArmadoDireccionController extends Controller
     {
         //
         try {
+            $arma2 = CotizacionArmados::where('cotizacion_id', $request->id)->get();
+            $datos['armado']=[];
+            $datos['armado']['dire']=[];
+            $datos['armado']['id_arm']=[];
+            $datos['armado']['costos_arm']=[];
+            $datos['armado']['prec_redond_arm']=[];
+            $datos['armado']['direccion']['cp_dire']=[];
+            $datos['armado']['direccion']['cant_dire']=[];
+            foreach($arma2 as $arm){
+                $datos['armado']['id_arm']=$arm->id;
+                array_push($datos['armado']['costos_arm'],$arm->sub_total);
+                array_push($datos['armado']['prec_redond_arm'],$arm->prec_redond);
+                $regarm = CotizacionArmadoTieneDirecciones::where('armado_id',$arm->id)->get();
+                if(count($regarm)!=0){
+                    array_push($datos['armado']['dire'],$regarm);
+                    // $dire=$regarm;
+                }
+            }
+            return $datos['armado']['dire'][0][0];
+            foreach($datos['armado']['dire'] as $catdireccion){
+                array_push($datos['armado']['direccion']['cant_dire'],$catdireccion->cant);
+                if($catdireccion->cp){
+                    array_push($datos['armado']['direccion']['cp_dire'],$catdireccion->cp);
+                }
+            }
+            return $datos;
+            return array_sum($datos['armado']['direccion']['costos_arm']);
+            
             $armado = CotizacionArmados::with('cotizacion')->findOrFail($request->id_registro_cot_arm);
             $cotizacion = $armado->cotizacion;
             // return $armado->cant_direc_carg . ' la cant: >=' . $request->cantidad . 'y'. $request->cantidad .'<='. $armado->cant;
-            if ($armado->cotizacion->estat=='Abierta') {
-                if ($request->cantidad>0 && $request->cantidad <= $armado->cant && $armado->cant_direc_carg < $armado->cant) {
+            if($armado->cotizacion->estat=='Abierta'){
+                if($request->cantidad>0 && $request->cantidad <= $armado->cant && $armado->cant_direc_carg < $armado->cant){
                     // if ($armado->cant_direc_carg>=$request->cantidad) {
                     // return 'Aqui llega';
-                        $direccion = new CotizacionArmadoTieneDirecciones();
-                        $direccion->seg                       = 'No';
-                        $direccion->est                       = $request->est;
-                        $direccion->armado_id                 = $request->id_registro_cot_arm;
-                        $direccion->created_at_dir            = $request->created_at_dir;
-                        $direccion->cant                      = $request->cantidad;
-                        $direccion->tam                       = $armado->tam;
-                        if (strlen($request->detalles_de_la_ubicacion) == 0) {
-                            $direccion->detalles_de_la_ubicacion='Sin detalles';
-                        }else{
-                            $direccion->detalles_de_la_ubicacion  = $request->detalles_de_la_ubicacion;
+                    $direccion = new CotizacionArmadoTieneDirecciones();
+                    $direccion->seg                       = 'No';
+                    $direccion->est                       = $request->est;
+                    $direccion->armado_id                 = $request->id_registro_cot_arm;
+                    $direccion->created_at_dir            = $request->created_at_dir;
+                    $direccion->cant                      = $request->cantidad;
+                    $direccion->tam                       = $armado->tam;
+                    if(strlen($request->detalles_de_la_ubicacion) == 0){
+                        $direccion->detalles_de_la_ubicacion  ='Sin detalles';
+                    }else{
+                        $direccion->detalles_de_la_ubicacion  = $request->detalles_de_la_ubicacion;
+                    }
+                    if(($direccion->est == 'Ciudad de México (Ciudad de México)' OR $direccion->est == 'México (Edo. México)') && $cotizacion->sub_total>=4000) {
+                        $direccion->for_loc               = 'Local';
+                        $direccion->met_de_entreg         = 'Transporte interno de la empresa';
+                        $direccion->tiemp_ent             = 'De 1 a 4 dias';
+                        $direccion->cost_por_env = 0.00;
+                        $direccion->cost_tam_caj = 0.00;
+                    }elseif(($direccion->est == 'Ciudad de México (Ciudad de México)' OR $direccion->est == 'México (Edo. México)') && $cotizacion->sub_total<4000){
+                        $direccion->for_loc               = 'Local';
+                        $direccion->met_de_entreg         = 'Transporte interno de la empresa';
+                        $direccion->tiemp_ent             = 'De 1 a 4 dias';
+                        $direccion->cost_tam_caj = 0.00;
+                        $direccion->cost_por_env = 250.00;
+                    }elseif(($direccion->est == 'Puebla (H. Puebla de Zaragoza)' OR $direccion->est == 'Querétaro (Santiago de Querétaro)' OR $direccion->est == 'Hidalgo (Pachuca de Soto)' OR $direccion->est == 'Tlaxcala (Tlaxcala de Xicohténcatl)' OR $direccion->est == 'Morelos (Cuernavaca)') && $cotizacion->sub_total>=20000){
+                        $direccion->for_loc               = 'Foráneo';
+                        $direccion->tiemp_ent             = 'De 2 a 10 dias';
+                        $direccion->met_de_entreg         = 'Transportes Ferro';
+                        $direccion->cost_por_env = null;
+                        if($direccion->tam == 'Mediano'){
+                            $direccion->cost_tam_caj = 30.00;
+                        }elseif($direccion->tam == 'Chico'){
+                            $direccion->cost_tam_caj = 20.00;
+                        }elseif($direccion->tam == 'Grande'){
+                            $direccion->cost_tam_caj = 40.00;
                         }
-                        if($direccion->est == 'Ciudad de México (Ciudad de México)' OR $direccion->est == 'México (Edo. México)') {
-                            $direccion->for_loc               = 'Local';
-                            $direccion->met_de_entreg         = 'Transporte interno de la empresa';
-                            $direccion->tiemp_ent             = 'De 1 a 4 dias';
-                            $direccion->cost_tam_caj = 0.00;
-                        }else {
-                            $direccion->for_loc               = 'Foráneo';
-                            $direccion->tiemp_ent             = 'De 7 a 10 dias';
-                            $direccion->met_de_entreg         = 'Transportes Ferro';
-                            if ($direccion->tam == 'Mediano') {
-                                $direccion->cost_tam_caj = 30.00;
-                            }elseif ($direccion->tam == 'Chico'){
-                                $direccion->cost_tam_caj = 20.00;
-                            }elseif ($direccion->tam == 'Grande'){
-                                $direccion->cost_tam_caj = 40.00;
-                            }
+                    }else{
+                        $direccion->for_loc               = 'Foráneo';
+                        $direccion->tiemp_ent             = 'De 7 a 10 dias';
+                        $direccion->met_de_entreg         = 'Transportes Ferro';
+                        $direccion->cost_por_env = null;
+                        if($direccion->tam == 'Mediano'){
+                            $direccion->cost_tam_caj = 30.00;
+                        }elseif($direccion->tam == 'Chico'){
+                            $direccion->cost_tam_caj = 20.00;
+                        }elseif($direccion->tam == 'Grande'){
+                            $direccion->cost_tam_caj = 40.00;
                         }
-                        $direccion->save();
-                        $armado->cost_env         += $direccion->cost_por_env;
-                        $armado->cant_direc_carg  += $direccion->cant;
-                        $armado                   = $this->sumaValoresArmadoCotizacion($armado);
-                        $armado->save();
-                        $this->calculaValoresCotizacion($cotizacion);
-                        return response()->json(['data'=>[],"message"=>"Se ha agregado direccion correctamente","code"=>200]);
+                    }
+                    if($request->cost_tam_caj > 0){
+                        $direccion->cost_por_env += $request->cost_tam_caj *  $request->cantidad;
+                    }
+                    $direccion->save();
+                    $armado->cost_env         += $direccion->cost_por_env;
+                    $armado->cant_direc_carg  += $direccion->cant;
+                    $armado                   = $this->sumaValoresArmadoCotizacion($armado);
+                    $armado->save();
+                    $this->calculaValoresCotizacion($cotizacion);
+                    $cotizacion->save();
+                    return response()->json(['data'=>[],"message"=>"Se ha agregado direccion correctamente","code"=>200]);
                     // }
                     // else{
                     //     return response()->json(['data'=>[],"message"=>"No se pueden ingresar más arcones de los que existen en la cotización","code"=>200]);
                     // }
-                }
-                else{
+                }else{
                     return response()->json(['data'=>[],"message"=>"No se pueden ingresar arcones a la cotización","code"=>200]);
                 }
             }else{
@@ -173,7 +224,6 @@ class CotizacionArmadoDireccionController extends Controller
             if($this->verifica($request->token)){
             $cot = cotizaciones::where('id',$request->id)->with("armados")->first();
             $item=[];
-            $dir = null;
             foreach ($cot->armados as $armado){
                 $dir = CotizacionArmadoTieneDirecciones::where('armado_id',$armado->id)->get();
                 array_push($item,$dir);
@@ -181,6 +231,83 @@ class CotizacionArmadoDireccionController extends Controller
             $direcciones = $item[0];
             return response()->json(['data'=>$direcciones,"message"=>"Direcciones encontradas correctamente","code"=>200]);
         }
+        } catch (\Throwable $th) {
+            return response(["message"=>"error", 'error'=>$th]);
+        }
+    }
+    public function nuevadir(Request $request){
+        try {
+            $armado = CotizacionArmados::with('cotizacion')->findOrFail($request->id_registro_cot_arm);
+            $cotizacion = $armado->cotizacion;
+            if($armado->cotizacion->estat=='Abierta'){
+                if($request->cantidad>0 && $request->cantidad <= $armado->cant && $armado->cant_direc_carg < $armado->cant){
+                    $direccion = new CotizacionArmadoTieneDirecciones();
+                    $direccion->seg                       = 'No';
+                    $direccion->est                       = $request->est;
+                    $direccion->cp                        = $request->cp;
+                    $direccion->armado_id                 = $request->id_registro_cot_arm;
+                    $direccion->created_at_dir            = $request->created_at_dir;
+                    $direccion->cant                      = $request->cantidad;
+                    $direccion->tam                       = $armado->tam;
+                    if(strlen($request->detalles_de_la_ubicacion) == 0){
+                        $direccion->detalles_de_la_ubicacion  ='Sin detalles';
+                    }else{
+                        $direccion->detalles_de_la_ubicacion  = $request->detalles_de_la_ubicacion;
+                    }
+                    if(($direccion->est == 'Ciudad de México (Ciudad de México)' OR $direccion->est == 'México (Edo. México)') && $cotizacion->sub_total>=4000) {
+                        $direccion->for_loc               = 'Local';
+                        $direccion->met_de_entreg         = 'Transporte interno de la empresa';
+                        $direccion->tiemp_ent             = 'De 1 a 4 dias';
+                        $direccion->cost_por_env = 0.00;
+                        $direccion->cost_tam_caj = 0.00;
+                    }elseif(($direccion->est == 'Ciudad de México (Ciudad de México)' OR $direccion->est == 'México (Edo. México)') && $cotizacion->sub_total<4000){
+                        $direccion->for_loc               = 'Local';
+                        $direccion->met_de_entreg         = 'Transporte interno de la empresa';
+                        $direccion->tiemp_ent             = 'De 1 a 4 dias';
+                        $direccion->cost_tam_caj = 0.00;
+                        $direccion->cost_por_env = 250.00;
+                    }elseif(($direccion->est == 'Puebla (H. Puebla de Zaragoza)' OR $direccion->est == 'Querétaro (Santiago de Querétaro)' OR $direccion->est == 'Hidalgo (Pachuca de Soto)' OR $direccion->est == 'Tlaxcala (Tlaxcala de Xicohténcatl)' OR $direccion->est == 'Morelos (Cuernavaca)') && $cotizacion->sub_total>=20000){
+                        $direccion->for_loc               = 'Foráneo';
+                        $direccion->tiemp_ent             = 'De 2 a 10 dias';
+                        $direccion->met_de_entreg         = 'Transportes Ferro';
+                        $direccion->cost_por_env = null;
+                        // if($direccion->tam == 'Mediano'){
+                        //     $direccion->cost_tam_caj = 30.00;
+                        // }elseif($direccion->tam == 'Chico'){
+                        //     $direccion->cost_tam_caj = 20.00;
+                        // }elseif($direccion->tam == 'Grande'){
+                        //     $direccion->cost_tam_caj = 40.00;
+                        // }
+                    }else{
+                        $direccion->for_loc               = 'Foráneo';
+                        $direccion->tiemp_ent             = 'De 7 a 10 dias';
+                        $direccion->met_de_entreg         = 'Transportes Ferro';
+                        $direccion->cost_por_env = null;
+                        // if($direccion->tam == 'Mediano'){
+                        //     $direccion->cost_tam_caj = 30.00;
+                        // }elseif($direccion->tam == 'Chico'){
+                        //     $direccion->cost_tam_caj = 20.00;
+                        // }elseif($direccion->tam == 'Grande'){
+                        //     $direccion->cost_tam_caj = 40.00;
+                        // }
+                    }
+                    if($direccion->cost_tam_caj > 0){
+                        $direccion->cost_por_env += $direccion->cost_tam_caj *  $request->cantidad;
+                    }
+                    $direccion->save();
+                    $armado->cost_env         += $direccion->cost_por_env;
+                    $armado->cant_direc_carg  += $direccion->cant;
+                    $armado                   = $this->sumaValoresArmadoCotizacion($armado);
+                    $armado->save();
+                    $this->calculaValoresCotizacion($cotizacion);
+                    $cotizacion->save();
+                    return response()->json(['data'=>[],"message"=>"Se ha agregado direccion correctamente","code"=>200]);
+                }else{
+                    return response()->json(['data'=>[],"message"=>"No se pueden ingresar arcones a la cotización","code"=>200]);
+                }
+            }else{
+                return response()->json(['data'=>[],"message"=>"La cotización no se encuentra abierta","code"=>200]);
+            }
         } catch (\Throwable $th) {
             return response(["message"=>"error", 'error'=>$th]);
         }

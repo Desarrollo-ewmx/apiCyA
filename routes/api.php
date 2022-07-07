@@ -80,6 +80,7 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
 
     
     Route::get('llenacatd','App\Http\Controllers\CotizacionArmadoDireccionController@store');
+    Route::get('nuedir','App\Http\Controllers\CotizacionArmadoDireccionController@nuevadir');
 });
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
