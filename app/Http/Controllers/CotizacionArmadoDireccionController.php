@@ -319,4 +319,32 @@ class CotizacionArmadoDireccionController extends Controller
             return response(["message"=>"error", 'error'=>$th]);
         }
     }
+    public function verdirec(Request $request){
+        try {
+            $datos['armados']=[];
+            $cot = cotizaciones::where('id',$request->id)->with("armados")->first();
+            if ($request->user_id==$cot->user_id) {
+                $arma2 = CotizacionArmados::where('cotizacion_id', $request->id)->get();
+                foreach($arma2 as $arm){
+                    $regarm = CotizacionArmadoTieneDirecciones::where('armado_id',$arm->id)->get();
+                    if(count($regarm)!=0){
+                        foreach($regarm as $direccion){
+                            $data['id']=$direccion->id;
+                            $data['armado_id']=$direccion->armado_id;
+                            $data['cant']=$direccion->cant;
+                            $data['cp']=$direccion->cp;
+                            $data['est']=$direccion->est;
+                            $data['cost_por_env']=$direccion->cost_por_env;
+                            array_push($datos['armados'],$data);
+                        }
+                    }
+                }
+                return response()->json(['data'=>$datos,"message"=>"Armados encontrados","code"=>200]);
+            }else{
+                return response()->json(['data'=>[],"message"=>"Usuario no coincide","code"=>200]);
+            }
+        } catch (\Throwable $th) {
+            return response(["message"=>"error", 'error'=>$th]);
+        }
+    }
 }
