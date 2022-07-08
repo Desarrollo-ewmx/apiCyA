@@ -334,7 +334,7 @@ class CotizacionArmadoDireccionController extends Controller
                             $data['cant']=$direccion->cant;
                             $data['cp']=$direccion->cp;
                             $data['est']=$direccion->est;
-                            $data['tot']=$arm->tot;
+                            $data['tot']=$direccion->cant * $arm->prec_redond;
                             $data['cost_por_env']=$direccion->cost_por_env;
                             array_push($datos['armados'],$data);
                         }
