@@ -222,16 +222,16 @@ class CotizacionArmadoDireccionController extends Controller
             ]);
             //  return $request;
             if($this->verifica($request->token)){
-            $cot = cotizaciones::where('id',$request->id)->with("armados")->first();
-            $item=[];
-            foreach ($cot->armados as $armado){
-                $dir = CotizacionArmadoTieneDirecciones::where('armado_id',$armado->id)->get();
-                array_push($item,$dir);
+                $cot = cotizaciones::where('id',$request->id)->with("armados")->first();
+                $item=[];
+                foreach ($cot->armados as $armado){
+                    $dir = CotizacionArmadoTieneDirecciones::where('armado_id',$armado->id)->get();
+                    array_push($item,$dir);
+                }
+                $direcciones = $item[0];
+                return response()->json(['data'=>$direcciones,"message"=>"Direcciones encontradas correctamente","code"=>200]);
             }
-            $direcciones = $item[0];
-            return response()->json(['data'=>$direcciones,"message"=>"Direcciones encontradas correctamente","code"=>200]);
-        }
-        } catch (\Throwable $th) {
+        }catch (\Throwable $th){
             return response(["message"=>"error", 'error'=>$th]);
         }
     }
@@ -330,10 +330,11 @@ class CotizacionArmadoDireccionController extends Controller
                     if(count($regarm)!=0){
                         foreach($regarm as $direccion){
                             $data['id']=$direccion->id;
-                            $data['armado_id']=$direccion->armado_id;
+                            $data['nom']=$arm->nom;
                             $data['cant']=$direccion->cant;
                             $data['cp']=$direccion->cp;
                             $data['est']=$direccion->est;
+                            $data['tot']=$arm->tot;
                             $data['cost_por_env']=$direccion->cost_por_env;
                             array_push($datos['armados'],$data);
                         }
@@ -348,3 +349,4 @@ class CotizacionArmadoDireccionController extends Controller
         }
     }
 }
+
