@@ -82,6 +82,7 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
     Route::post('llenacatd','App\Http\Controllers\CotizacionArmadoDireccionController@store');
     Route::post('nuedir','App\Http\Controllers\CotizacionArmadoDireccionController@nuevadir');
     Route::get('verdir','App\Http\Controllers\CotizacionArmadoDireccionController@verdirec');
+    Route::post('borrardir','App\Http\Controllers\CotizacionArmadoDireccionController@delete');
 });
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();

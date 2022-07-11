@@ -7,6 +7,7 @@ use App\Traits\Verifytoken;
 use App\Models\CotizacionArmadoTieneDirecciones;
 use App\Models\CotizacionArmados;
 use App\Models\cotizaciones;
+use Illuminate\Support\Facades\DB;
 use App\Models\carmados;
 
 class CotizacionArmadoDireccionController extends Controller
@@ -343,6 +344,29 @@ class CotizacionArmadoDireccionController extends Controller
                 return response()->json(['data'=>$datos,"message"=>"Armados encontrados","code"=>200]);
             }else{
                 return response()->json(['data'=>[],"message"=>"Usuario no coincide","code"=>200]);
+            }
+        } catch (\Throwable $th) {
+            return response(["message"=>"error", 'error'=>$th]);
+        }
+    }
+    public function delete(Request $request){
+        try { 
+            DB::beginTransaction();
+            $direccion = CotizacionArmadoTieneDirecciones::where('id',$request->id)->firstOrFail();
+            $armado = CotizacionArmados::with('cotizacion')->findOrFail($direccion->armado_id);
+            $cotizacion = $armado->cotizacion;
+            if($armado->cotizacion->estat=='Abierta'){
+                $direccion->forceDelete();
+                // ACTUALIZA Y GENERA LOS NUEVOS PRECIOS DEL ARMADO
+                $armado->cost_env        -= $direccion->cost_por_env;
+                $armado->cant_direc_carg -= $direccion->cant;
+                $armado                   = $this->sumaValoresArmadoCotizacion($armado);
+                $armado->save();
+                // GENERA LOS NUEVOS PRECIOS DE LA COTIZACIÓN
+                $this->calculaValoresCotizacion($cotizacion);
+                // IMPORTANTE NO SE IMPLEMENTARA PAPELERA DE RECICLAJE (POR LOS PRECIOS DE LOS ARMADOS RELACIONADOS A LA COTIZACIÓN)s
+                DB::commit();
+                return response()->json(['data'=>[],"message"=>"La dirección se ha eliminado con éxito","code"=>200]);
             }
         } catch (\Throwable $th) {
             return response(["message"=>"error", 'error'=>$th]);
