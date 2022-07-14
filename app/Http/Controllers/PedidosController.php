@@ -449,4 +449,5 @@ class PedidosController extends Controller
         $pedido->save();
         return $pedido->num_pedido.'-'.$pedido->ult_let;
     }
+    
 }

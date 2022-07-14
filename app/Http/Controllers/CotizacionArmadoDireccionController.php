@@ -254,7 +254,7 @@ class CotizacionArmadoDireccionController extends Controller
                         $esNuevaDireccion=false;
                     }
                 }
-                if($armado->cotizacion->estat=='Abierta' && $esNuevaDireccion==true){
+                if($armado->cotizacion->estat=='Abierta'){
                     if($request->cantidad>0 && $request->cantidad <= $armado->cant && $armado->cant_direc_carg < $armado->cant){
                         $direccion = new CotizacionArmadoTieneDirecciones();
                         $direccion->seg                       = 'No';
@@ -298,7 +298,9 @@ class CotizacionArmadoDireccionController extends Controller
                         $armado->cost_env         += $direccion->cost_por_env;
                         $armado->cant_direc_carg  += $direccion->cant;
                         $armado                   = $this->sumaValoresArmadoCotizacion($armado);
-                        $this->direcciones($direccion, $cotizacion->user_id, $request);
+                        if ($esNuevaDireccion==false) {
+                            $this->direcciones($direccion, $cotizacion->user_id, $request);
+                        }
                         $armado->save();
                         $this->calculaValoresCotizacion($cotizacion);
                         $cotizacion->save();
