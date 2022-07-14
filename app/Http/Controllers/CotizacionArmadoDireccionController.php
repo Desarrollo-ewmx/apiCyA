@@ -3,11 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
 use App\Traits\Verifytoken;
+
 use App\Models\CotizacionArmadoTieneDirecciones;
 use App\Models\CotizacionArmados;
 use App\Models\cotizaciones;
-use Illuminate\Support\Facades\DB;
+use App\Models\Direccion;
 use App\Models\carmados;
 
 class CotizacionArmadoDireccionController extends Controller
@@ -242,9 +245,16 @@ class CotizacionArmadoDireccionController extends Controller
                 'token'=>'required'
             ]);
             if($this->verifica($request->token)){
+                $esNuevaDireccion=true;
                 $armado = CotizacionArmados::with('cotizacion')->findOrFail($request->id_registro_cot_arm);
                 $cotizacion = $armado->cotizacion;
-                if($armado->cotizacion->estat=='Abierta'){
+                $validacion = Direccion::where('user_id', $cotizacion->user_id)->get();
+                foreach($validacion as $valido){
+                    if((strcasecmp($valido->col, $request->colonia) && strcasecmp($valido->cod_post, $request->cp)) == 0) {
+                        $esNuevaDireccion=false;
+                    }
+                }
+                if($armado->cotizacion->estat=='Abierta' && $esNuevaDireccion==true){
                     if($request->cantidad>0 && $request->cantidad <= $armado->cant && $armado->cant_direc_carg < $armado->cant){
                         $direccion = new CotizacionArmadoTieneDirecciones();
                         $direccion->seg                       = 'No';
@@ -275,26 +285,11 @@ class CotizacionArmadoDireccionController extends Controller
                             $direccion->for_loc               = 'Foráneo';
                             $direccion->tiemp_ent             = 'De 2 a 10 dias';
                             $direccion->met_de_entreg         = 'Transportes Ferro';
-                            $direccion->cost_por_env = null;
-                            // if($direccion->tam == 'Mediano'){
-                            //     $direccion->cost_tam_caj = 30.00;
-                            // }elseif($direccion->tam == 'Chico'){
-                            //     $direccion->cost_tam_caj = 20.00;
-                            // }elseif($direccion->tam == 'Grande'){
-                            //     $direccion->cost_tam_caj = 40.00;
-                            // }
                         }else{
                             $direccion->for_loc               = 'Foráneo';
                             $direccion->tiemp_ent             = 'De 7 a 10 dias';
                             $direccion->met_de_entreg         = 'Transportes Ferro';
                             $direccion->cost_por_env = null;
-                            // if($direccion->tam == 'Mediano'){
-                            //     $direccion->cost_tam_caj = 30.00;
-                            // }elseif($direccion->tam == 'Chico'){
-                            //     $direccion->cost_tam_caj = 20.00;
-                            // }elseif($direccion->tam == 'Grande'){
-                            //     $direccion->cost_tam_caj = 40.00;
-                            // }
                         }
                         if($direccion->cost_tam_caj > 0){
                             $direccion->cost_por_env += $direccion->cost_tam_caj *  $request->cantidad;
@@ -303,6 +298,7 @@ class CotizacionArmadoDireccionController extends Controller
                         $armado->cost_env         += $direccion->cost_por_env;
                         $armado->cant_direc_carg  += $direccion->cant;
                         $armado                   = $this->sumaValoresArmadoCotizacion($armado);
+                        $this->direcciones($direccion, $cotizacion->user_id, $request);
                         $armado->save();
                         $this->calculaValoresCotizacion($cotizacion);
                         $cotizacion->save();
@@ -350,27 +346,49 @@ class CotizacionArmadoDireccionController extends Controller
         }
     }
     public function delete(Request $request){
-        try { 
-            DB::beginTransaction();
-            $direccion = CotizacionArmadoTieneDirecciones::where('id',$request->id)->firstOrFail();
-            $armado = CotizacionArmados::with('cotizacion')->findOrFail($direccion->armado_id);
-            $cotizacion = $armado->cotizacion;
-            if($armado->cotizacion->estat=='Abierta'){
-                $direccion->forceDelete();
-                // ACTUALIZA Y GENERA LOS NUEVOS PRECIOS DEL ARMADO
-                $armado->cost_env        -= $direccion->cost_por_env;
-                $armado->cant_direc_carg -= $direccion->cant;
-                $armado                   = $this->sumaValoresArmadoCotizacion($armado);
-                $armado->save();
-                // GENERA LOS NUEVOS PRECIOS DE LA COTIZACIÓN
-                $this->calculaValoresCotizacion($cotizacion);
-                // IMPORTANTE NO SE IMPLEMENTARA PAPELERA DE RECICLAJE (POR LOS PRECIOS DE LOS ARMADOS RELACIONADOS A LA COTIZACIÓN)s
-                DB::commit();
-                return response()->json(['data'=>[],"message"=>"La dirección se ha eliminado con éxito","code"=>200]);
+        try {
+            $validated = $request->validate([
+                'token'=>'required'
+            ]);
+            if($this->verifica($request->token)){
+                DB::beginTransaction();
+                $direccion = CotizacionArmadoTieneDirecciones::where('id',$request->id)->firstOrFail();
+                $armado = CotizacionArmados::with('cotizacion')->findOrFail($direccion->armado_id);
+                $cotizacion = $armado->cotizacion;
+                if($armado->cotizacion->estat=='Abierta'){
+                    $direccion->forceDelete();
+                    // ACTUALIZA Y GENERA LOS NUEVOS PRECIOS DEL ARMADO
+                    $armado->cost_env        -= $direccion->cost_por_env;
+                    $armado->cant_direc_carg -= $direccion->cant;
+                    $armado                   = $this->sumaValoresArmadoCotizacion($armado);
+                    $armado->save();
+                    // GENERA LOS NUEVOS PRECIOS DE LA COTIZACIÓN
+                    $this->calculaValoresCotizacion($cotizacion);
+                    // IMPORTANTE NO SE IMPLEMENTARA PAPELERA DE RECICLAJE (POR LOS PRECIOS DE LOS ARMADOS RELACIONADOS A LA COTIZACIÓN)s
+                    DB::commit();
+                    return response()->json(['data'=>[],"message"=>"La dirección se ha eliminado con éxito","code"=>200]);
+                }
+            }else{
+                return response()->json(['data'=>[],"message"=>"token invalido","code"=>403]);
             }
         } catch (\Throwable $th) {
             return response(["message"=>"error", 'error'=>$th]);
         }
+    }
+    public function direcciones($direccion, $user_id, $request){
+        $nuevadir = new Direccion();
+        $nuevadir->nom_ref_uno = 'Pendiente';
+        $nuevadir->calle = 'Pendiente';
+        $nuevadir->no_ext = 'Falta';
+        $nuevadir->ciudad = $request->ciudad;
+        $nuevadir->col = $request->colonia;
+        $nuevadir->del_o_munic = $request->del_o_munic;
+        $nuevadir->cod_post = $direccion->cp;
+        $nuevadir->user_id = $user_id;
+        $user=DB::table('users')->where("id",$user_id)->first();
+        $nuevadir->created_at_direc = $user->email_registro;
+        $nuevadir->updated_at_direc = $user->email_registro;
+        $nuevadir->save();
     }
 }
 

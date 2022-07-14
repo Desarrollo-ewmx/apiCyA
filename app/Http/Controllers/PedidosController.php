@@ -144,7 +144,7 @@ class PedidosController extends Controller
         $pedido->ult_let          = 'A';
         $pedido->user_id          = $cotizacion->user_id;
         $pedido->tot_de_arm       = $cotizacion->tot_arm;
-        if ($pedido->tot_de_arm >= 21) {
+        if ($pedido->tot_de_arm >= 11) {
             $pedido->bod              = 'Temas';
         } else {
             $pedido->bod              = 'Naucalpan';
@@ -442,5 +442,11 @@ class PedidosController extends Controller
             $modificado = true;
         }
         return $modificado;
+    }
+    public function sumaUnoALaUltimaLetraYArmadosCargados($pedido, $cantidad) {
+        $pedido->ult_let  = ++ $pedido->ult_let;
+        $pedido->arm_carg += $cantidad;
+        $pedido->save();
+        return $pedido->num_pedido.'-'.$pedido->ult_let;
     }
 }
