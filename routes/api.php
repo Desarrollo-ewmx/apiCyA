@@ -77,7 +77,6 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
     Route::get('cotuserid','App\Http\Controllers\CotizacionesController@paraligar');
     Route::get('cotarmdir','App\Http\Controllers\CotizacionArmadoDireccionController@show');
     Route::get('tabdir','App\Http\Controllers\CotizacionArmadoDireccionController@muestradirecciones');
-
     
     Route::post('llenacatd','App\Http\Controllers\CotizacionArmadoDireccionController@store');
     Route::post('nuedir','App\Http\Controllers\CotizacionArmadoDireccionController@nuevadir');

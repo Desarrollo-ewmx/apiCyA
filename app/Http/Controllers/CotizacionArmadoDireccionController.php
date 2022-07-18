@@ -514,5 +514,6 @@ class CotizacionArmadoDireccionController extends Controller
             return response(["message"=>"error", 'error'=>$th]);
         }
     }
+    
 }
 

@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Direccion;
+use App\Traits\Verifytoken;
 
 class DireccionController extends Controller
 {
+    use Verifytoken;
     /**
      * Display a listing of the resource.
      *
@@ -98,8 +100,37 @@ class DireccionController extends Controller
     }
     public function dirporuser(Request $request){
         try {
-            $direcciones['direcciones'] = Direccion::where('user_id', '=', $request->id)->get();
-            return response()->json(['data'=>$direcciones,"message"=>"Direcciones encontradas","code"=>200]);
+            $validated = $request->validate([
+                'token' => 'required'
+            ]);
+            if ($this->verifica($request->token)) {
+                $direcc['direcciones'] = [];
+                $direcciones = Direccion::where('user_id', '=', $request->id)->get();
+                foreach ($direcciones as $direccion){
+                    $dir['id'] = $direccion->id;
+                    $dir['nom_ref_dos'] = $direccion->nom_ref_dos;
+                    $dir['lad_fij'] = $direccion->lad_fij;
+                    $dir['tel_fij'] = $direccion->tel_fij;
+                    $dir['ext'] = $direccion->ext;
+                    $dir['lad_mov'] = $direccion->lad_mov;
+                    $dir['tel_mov'] = $direccion->tel_mov;
+                    $dir['calle'] = $direccion->calle;
+                    $dir['no_ext'] = $direccion->no_ext;
+                    $dir['no_int'] = $direccion->no_int;
+                    $dir['pais'] = $direccion->pais;
+                    $dir['ciudad'] = $direccion->ciudad;
+                    $dir['col'] = $direccion->col;
+                    $dir['del_o_munic'] = $direccion->del_o_munic;
+                    $dir['cod_post'] = $direccion->cod_post;
+                    $dir['ref_zon_de_entreg'] = $direccion->ref_zon_de_entreg;
+                    $dir['user_id'] = $direccion->user_id;
+                    $dir['nom_ref_uno'] = $direccion->nom_ref_uno;
+                    array_push($direcc['direcciones'], $dir);
+                }
+                return response()->json(['data'=>$direcc,"message"=>"Direcciones encontradas","code"=>200]);
+            } else {
+                return response()->json(['data' => [], "message" => "token invalido", "code" => 403]);
+            }
         } catch (\Throwable $th) {
             return response(["message"=>"error", 'error'=>$th]);
         }
