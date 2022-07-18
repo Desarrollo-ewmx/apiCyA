@@ -83,6 +83,9 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
     Route::post('nuedir','App\Http\Controllers\CotizacionArmadoDireccionController@nuevadir');
     Route::get('verdir','App\Http\Controllers\CotizacionArmadoDireccionController@verdirec');
     Route::post('borrardir','App\Http\Controllers\CotizacionArmadoDireccionController@delete');
+    Route::get('direcc','App\Http\Controllers\DireccionController@dirporuser');
+    Route::post('agregavariasdire','App\Http\Controllers\CotizacionArmadoDireccionController@agregaravariasdirecciones');
+    Route::post('agregadiretu','App\Http\Controllers\CotizacionArmadoDireccionController@agregardireccionescontarifaunica');
 });
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();

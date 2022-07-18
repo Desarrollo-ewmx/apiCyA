@@ -96,4 +96,12 @@ class DireccionController extends Controller
     {
         //
     }
+    public function dirporuser(Request $request){
+        try {
+            $direcciones['direcciones'] = Direccion::where('user_id', '=', $request->id)->get();
+            return response()->json(['data'=>$direcciones,"message"=>"Direcciones encontradas","code"=>200]);
+        } catch (\Throwable $th) {
+            return response(["message"=>"error", 'error'=>$th]);
+        }
+    }
 }
