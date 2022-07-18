@@ -250,7 +250,7 @@ class CotizacionArmadoDireccionController extends Controller
                 $cotizacion = $armado->cotizacion;
                 $validacion = Direccion::where('user_id', $cotizacion->user_id)->get();
                 foreach($validacion as $valido){
-                    if((strcasecmp($valido->col, $request->colonia) && strcasecmp($valido->cod_post, $request->cp)) == 0) {
+                    if(strcasecmp($valido->col, $request->colonia) == 0 || strcasecmp($valido->cod_post, $request->cp) == 0) {
                         $esNuevaDireccion=false;
                     }
                 }
