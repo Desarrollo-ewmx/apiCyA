@@ -135,4 +135,5 @@ class DireccionController extends Controller
             return response(["message"=>"error", 'error'=>$th]);
         }
     }
+    
 }

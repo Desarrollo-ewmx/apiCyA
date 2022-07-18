@@ -299,7 +299,7 @@ class CotizacionArmadoDireccionController extends Controller
                         $armado->cost_env         += $direccion->cost_por_env;
                         $armado->cant_direc_carg  += $direccion->cant;
                         $armado                   = $this->sumaValoresArmadoCotizacion($armado);
-                        if ($esNuevaDireccion==false) {
+                        if ($esNuevaDireccion==true) {
                             $this->direcciones($direccion, $cotizacion->user_id, $request);
                         }
                         $armado->save();
@@ -514,6 +514,6 @@ class CotizacionArmadoDireccionController extends Controller
             return response(["message"=>"error", 'error'=>$th]);
         }
     }
-    
+
 }
 
