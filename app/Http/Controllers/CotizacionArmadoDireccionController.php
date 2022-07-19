@@ -403,11 +403,14 @@ class CotizacionArmadoDireccionController extends Controller
             ]);
             if($this->verifica($request->token)){
                 $data['armados']=[];
+                $resultado = str_replace ( "[", '', $request->ids);
+                $resultado = str_replace ( "]", '', $resultado);
+                $listaids = explode(',',$resultado);
                 $armadosporcot = CotizacionArmados::with('cotizacion')->where("cotizacion_id",$request->id)->with('cotizacion')->get();
                 $cotizacion = cotizaciones::where('id',$request->id)->first();
                 if($cotizacion->estat=='Abierta'){
                     foreach($armadosporcot as $armado){
-                        if (in_array($armado->id_armado,$request->ids)) {
+                        if (in_array($armado->id_armado,$listaids)) {
                             if ($armado->cant < $armado->cant_direc_carg) {
                                 $direccion = new CotizacionArmadoTieneDirecciones();
                                 $direccion->seg                       = 'No';
@@ -485,13 +488,13 @@ class CotizacionArmadoDireccionController extends Controller
                             $direccion->for_loc               = 'Local';
                             $direccion->met_de_entreg         = 'Transporte interno de la empresa';
                             $direccion->tiemp_ent             = 'De 1 a 4 dias';
-                            $direccion->cost_por_env = 250.00;
+                            $direccion->cost_por_env = 250.00 * $request->cantidad;
                             $direccion->cost_tam_caj = 0.00;
                         }elseif ($direccion->est == 'Tarifa única (Varios estados)' ){
                             $direccion->for_loc               = 'Foráneo';
                             $direccion->tiemp_ent             = 'De 2 a 10 dias';
                             $direccion->met_de_entreg         = 'Transportes Ferro';
-                            $direccion->cost_por_env = 250.00;
+                            $direccion->cost_por_env = 250.00 * $request->cantidad;
                             if($direccion->tam == 'Mediano'){
                                 $direccion->cost_tam_caj = 30.00;
                             }elseif($direccion->tam == 'Chico'){
@@ -500,9 +503,9 @@ class CotizacionArmadoDireccionController extends Controller
                                 $direccion->cost_tam_caj = 40.00;
                             }
                         }
-                        if ($direccion->cant > 1) {
-                            $direccion->cost_por_env += $direccion->cost_por_env *  $request->cantidad;
-                        }
+                        // if ($direccion->cant > 1) {
+                        //     $direccion->cost_por_env += $direccion->cost_por_env *  $request->cantidad;
+                        // }
                         if($direccion->cost_tam_caj > 0){
                             $direccion->cost_por_env += $direccion->cost_tam_caj *  $request->cantidad;
                         }
