@@ -370,7 +370,7 @@ class CotizacionArmadoDireccionController extends Controller
                     $armado->save();
                     // GENERA LOS NUEVOS PRECIOS DE LA COTIZACIÓN
                     $this->calculaValoresCotizacion($cotizacion);
-                    // IMPORTANTE NO SE IMPLEMENTARA PAPELERA DE RECICLAJE (POR LOS PRECIOS DE LOS ARMADOS RELACIONADOS A LA COTIZACIÓN)s
+                    // IMPORTANTE NO SE IMPLEMENTARA PAPELERA DE RECICLAJE (POR LOS PRECIOS DE LOS ARMADOS RELACIONADOS A LA COTIZACIÓN)
                     DB::commit();
                     return response()->json(['data'=>[],"message"=>"La dirección se ha eliminado con éxito","code"=>200]);
                 }
@@ -386,7 +386,11 @@ class CotizacionArmadoDireccionController extends Controller
         $nuevadir->nom_ref_uno = 'Pendiente';
         $nuevadir->calle = 'Pendiente';
         $nuevadir->no_ext = 'Falta';
-        $nuevadir->ciudad = $request->ciudad;
+        if (strlen($request->ciudad) == 0) {
+            $nuevadir->ciudad = $request->ciudad;
+        }else{
+            $nuevadir->ciudad = 'S/N';
+        }
         $nuevadir->col = $request->colonia;
         $nuevadir->del_o_munic = $request->del_o_munic;
         $nuevadir->cod_post = $direccion->cp;
