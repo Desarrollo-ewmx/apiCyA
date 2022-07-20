@@ -57,11 +57,11 @@ class CotizacionArmadosController extends Controller
                     $cota->tip = $arm->tip;
                     $cota->nom = $arm->nom;
                     /**Corregir esta parte, ya modificado se refiere que si un arcon a se modificó, entonces se va a tomar en personalizados los que se modificaron para ese usuario */
-                    if ($arm->num_clon > 0) {
+                    // if ($arm->num_clon > 0) {
                         $cota->ya_mod = '0';
-                    } else {
-                        $cota->ya_mod = '1';
-                    }
+                    // } else {
+                    //     $cota->ya_mod = '1';
+                    // }
                     $cota->sku = $arm->sku;
                     $cota->gama = $arm->gama;
                     $cota->dest = $arm->dest;

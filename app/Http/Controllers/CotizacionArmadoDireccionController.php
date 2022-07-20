@@ -302,12 +302,12 @@ class CotizacionArmadoDireccionController extends Controller
                         $armado->cost_env         += $direccion->cost_por_env;
                         $armado->cant_direc_carg  += $direccion->cant;
                         $armado                   = $this->sumaValoresArmadoCotizacion($armado);
-                        if ($esNuevaDireccion==true) {
-                            $this->direcciones($direccion, $cotizacion->user_id, $request);
-                        }
                         $armado->save();
                         $this->calculaValoresCotizacion($cotizacion);
                         $cotizacion->save();
+                        if ($esNuevaDireccion==true) {
+                            $this->direcciones($direccion, $cotizacion->user_id, $request);
+                        }
                         return response()->json(['data'=>[],"message"=>"Se ha agregado la dirección correctamente","code"=>200]);
                     }else{
                         return response()->json(['data'=>[],"message"=>"No se pueden ingresar arcones a la cotización","code"=>200]);
@@ -399,6 +399,7 @@ class CotizacionArmadoDireccionController extends Controller
         $nuevadir->created_at_direc = $user->email_registro;
         $nuevadir->updated_at_direc = $user->email_registro;
         $nuevadir->save();
+        return $nuevadir;
     }
     public function agregaravariasdirecciones(Request $request){
         try {
