@@ -308,7 +308,7 @@ class CotizacionArmadoDireccionController extends Controller
                         $armado->save();
                         $this->calculaValoresCotizacion($cotizacion);
                         $cotizacion->save();
-                        return response()->json(['data'=>[],"message"=>"Se ha agregado direccion correctamente","code"=>200]);
+                        return response()->json(['data'=>[],"message"=>"Se ha agregado la dirección correctamente","code"=>200]);
                     }else{
                         return response()->json(['data'=>[],"message"=>"No se pueden ingresar arcones a la cotización","code"=>200]);
                     }
@@ -403,52 +403,48 @@ class CotizacionArmadoDireccionController extends Controller
             ]);
             if($this->verifica($request->token)){
                 $data['armados']=[];
-                $resultado = str_replace ( "[", '', $request->ids);
-                $resultado = str_replace ( "]", '', $resultado);
-                $listaids = explode(',',$resultado);
+                $listaids = explode(',',$request->ids);
                 $armadosporcot = CotizacionArmados::with('cotizacion')->where("cotizacion_id",$request->id)->with('cotizacion')->get();
                 $cotizacion = cotizaciones::where('id',$request->id)->first();
                 if($cotizacion->estat=='Abierta'){
                     foreach($armadosporcot as $armado){
-                        if (in_array($armado->id_armado,$listaids)) {
-                            if ($armado->cant < $armado->cant_direc_carg) {
-                                $direccion = new CotizacionArmadoTieneDirecciones();
-                                $direccion->seg                       = 'No';
-                                $direccion->est                       = 'Tarifa única (Varios estados)';
-                                $direccion->armado_id                 = $armado->id;
-                                $direccion->created_at_dir            = $request->created_at_dir;
-                                $direccion->cant                      = $armado->cant;
-                                $direccion->tam                       = $armado->tam;
-                                if($direccion->tam == 'Mediano'){
-                                    $direccion->cost_tam_caj = 30.00;
-                                }elseif($direccion->tam == 'Chico'){
-                                    $direccion->cost_tam_caj = 20.00;
-                                }elseif($direccion->tam == 'Grande'){
-                                    $direccion->cost_tam_caj = 40.00;
-                                }
-                                if(strlen($request->detalles_de_la_ubicacion) == 0){
-                                    $direccion->detalles_de_la_ubicacion  ='Sin detalles';
-                                }else{
-                                    $direccion->detalles_de_la_ubicacion  = $request->detalles_de_la_ubicacion;
-                                }
-                                $direccion->for_loc               = 'Foráneo';
-                                $direccion->met_de_entreg         = 'Transportes Ferro';
-                                $direccion->tiemp_ent             = 'De 7 a 10 dias';
-                                $direccion->cost_por_env = 250.00;
-                                if($direccion->cost_tam_caj > 0){
-                                    $direccion->cost_por_env += $direccion->cost_tam_caj *  $direccion->cant;
-                                }
-                                $direccion->save();
-                                $armado->cost_env         += $direccion->cost_por_env;
-                                $armado->cant_direc_carg  += $direccion->cant;
-                                $armado                   = $this->sumaValoresArmadoCotizacion($armado);
-                                $armado->save();
-                                $this->calculaValoresCotizacion($cotizacion);
-                                $cotizacion->save();
+                        if (in_array($armado->id,$listaids) && $armado->cant < $armado->cant_direc_carg) {
+                            $direccion = new CotizacionArmadoTieneDirecciones();
+                            $direccion->seg                       = 'No';
+                            $direccion->est                       = 'Tarifa única (Varios estados)';
+                            $direccion->armado_id                 = $armado->id;
+                            $direccion->created_at_dir            = $request->created_at_dir;
+                            $direccion->cant                      = $armado->cant;
+                            $direccion->tam                       = $armado->tam;
+                            if($direccion->tam == 'Mediano'){
+                                $direccion->cost_tam_caj = 30.00;
+                            }elseif($direccion->tam == 'Chico'){
+                                $direccion->cost_tam_caj = 20.00;
+                            }elseif($direccion->tam == 'Grande'){
+                                $direccion->cost_tam_caj = 40.00;
                             }
+                            if(strlen($request->detalles_de_la_ubicacion) == 0){
+                                $direccion->detalles_de_la_ubicacion  ='Sin detalles';
+                            }else{
+                                $direccion->detalles_de_la_ubicacion  = $request->detalles_de_la_ubicacion;
+                            }
+                            $direccion->for_loc               = 'Foráneo';
+                            $direccion->met_de_entreg         = 'Transportes Ferro';
+                            $direccion->tiemp_ent             = 'De 7 a 10 dias';
+                            $direccion->cost_por_env = 250.00;
+                            if($direccion->cost_tam_caj > 0){
+                                $direccion->cost_por_env += $direccion->cost_tam_caj *  $direccion->cant;
+                            }
+                            $direccion->save();
+                            $armado->cost_env         += $direccion->cost_por_env;
+                            $armado->cant_direc_carg  += $direccion->cant;
+                            $armado                   = $this->sumaValoresArmadoCotizacion($armado);
+                            $armado->save();
+                            $this->calculaValoresCotizacion($cotizacion);
+                            $cotizacion->save();
                         }
                     }
-                    return response()->json(['data'=>[],"message"=>"Se ha agregado direccion correctamente","code"=>200]);
+                    return response()->json(['data'=>[],"message"=>"Se ha agregado la dirección correctamente","code"=>200]);
                 }else{
                     return response()->json(['data'=>[],"message"=>"No se pueden ingresar arcones a la cotización","code"=>200]);
                 }
@@ -516,7 +512,7 @@ class CotizacionArmadoDireccionController extends Controller
                         $armado->save();
                         $this->calculaValoresCotizacion($cotizacion);
                         $cotizacion->save();
-                        return response()->json(['data'=>[],"message"=>"Se ha agregado direccion correctamente","code"=>200]);
+                        return response()->json(['data'=>[],"message"=>"Se ha agregado la dirección correctamente","code"=>200]);
                     }else{
                         return response()->json(['data'=>[],"message"=>"No se pueden ingresar arcones a la cotización","code"=>200]);
                     }
