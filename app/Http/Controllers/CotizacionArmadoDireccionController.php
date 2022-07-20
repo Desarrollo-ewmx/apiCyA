@@ -387,9 +387,9 @@ class CotizacionArmadoDireccionController extends Controller
         $nuevadir->calle = 'Pendiente';
         $nuevadir->no_ext = 'Falta';
         if (strlen($request->ciudad) == 0) {
-            $nuevadir->ciudad = $request->ciudad;
-        }else{
             $nuevadir->ciudad = 'S/N';
+        }else{
+            $nuevadir->ciudad = $request->ciudad;
         }
         $nuevadir->col = $request->colonia;
         $nuevadir->del_o_munic = $request->del_o_munic;
