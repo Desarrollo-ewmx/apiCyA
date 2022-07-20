@@ -416,7 +416,7 @@ class CotizacionArmadoDireccionController extends Controller
                             $direccion->est                       = 'Tarifa única (Varios estados)';
                             $direccion->armado_id                 = $armado->id;
                             $direccion->created_at_dir            = $request->created_at_dir;
-                            $direccion->cant                      = $armado->cant;
+                            $direccion->cant                      = $armado->cant - $armado->cant_direc_carg;
                             $direccion->tam                       = $armado->tam;
                             if($direccion->tam == 'Mediano'){
                                 $direccion->cost_tam_caj = 30.00;
