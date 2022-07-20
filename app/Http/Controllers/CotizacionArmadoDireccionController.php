@@ -407,8 +407,10 @@ class CotizacionArmadoDireccionController extends Controller
                 $armadosporcot = CotizacionArmados::with('cotizacion')->where("cotizacion_id",$request->id)->with('cotizacion')->get();
                 $cotizacion = cotizaciones::where('id',$request->id)->first();
                 if($cotizacion->estat=='Abierta'){
+                    // $variable=[];
                     foreach($armadosporcot as $armado){
-                        if (in_array($armado->id,$listaids) && $armado->cant < $armado->cant_direc_carg) {
+                        if (in_array($armado->id,$listaids) && $armado->cant > $armado->cant_direc_carg) {
+                            // array_push($variable,$armado->id);
                             $direccion = new CotizacionArmadoTieneDirecciones();
                             $direccion->seg                       = 'No';
                             $direccion->est                       = 'Tarifa única (Varios estados)';
@@ -444,6 +446,7 @@ class CotizacionArmadoDireccionController extends Controller
                             $cotizacion->save();
                         }
                     }
+                    // return $variable;
                     return response()->json(['data'=>[],"message"=>"Se ha agregado la dirección correctamente","code"=>200]);
                 }else{
                     return response()->json(['data'=>[],"message"=>"No se pueden ingresar arcones a la cotización","code"=>200]);
