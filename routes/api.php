@@ -83,6 +83,7 @@ Route::group(['middleware' => 'api',['cors']], function ($router) {
     Route::get('verdir','App\Http\Controllers\CotizacionArmadoDireccionController@verdirec');
     Route::post('borrardir','App\Http\Controllers\CotizacionArmadoDireccionController@delete');
     Route::get('direcc','App\Http\Controllers\DireccionController@dirporuser');
+    Route::get('dircompletas','App\Http\Controllers\DireccionController@direccionescompletas');
     Route::post('agregavariasdire','App\Http\Controllers\CotizacionArmadoDireccionController@agregaravariasdirecciones');
     Route::post('agregadiretu','App\Http\Controllers\CotizacionArmadoDireccionController@agregardireccionescontarifaunica');
 });

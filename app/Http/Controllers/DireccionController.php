@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Direccion;
+use App\Models\CotizacionArmados;
 use App\Traits\Verifytoken;
 
 class DireccionController extends Controller
@@ -135,5 +136,21 @@ class DireccionController extends Controller
             return response(["message"=>"error", 'error'=>$th]);
         }
     }
-    
+    public function direccionescompletas(Request $request){
+        try {
+            $direccionesCompletas=false;
+            $arma2 = CotizacionArmados::where('cotizacion_id', $request->id)->get();
+            foreach ($arma2 as $arm){
+                if ($arm->cant_direc_carg >= $arm->cant) {
+                    $direccionesCompletas=true;
+                }else {
+                    $direccionesCompletas=false;
+                    break;
+                }
+            }
+            return response()->json(['data'=>$direccionesCompletas,"message"=>"Direcciones","code"=>200]);
+        } catch (\Throwable $th) {
+            return response(["message"=>"error", 'error'=>$th]);
+        }
+    }
 }
