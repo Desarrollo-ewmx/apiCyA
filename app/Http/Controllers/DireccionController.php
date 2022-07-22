@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Direccion;
+use App\Models\cotizaciones;
 use App\Models\CotizacionArmados;
 use App\Traits\Verifytoken;
 
@@ -84,9 +85,26 @@ class DireccionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
+        try {
+            $direcciones = Direccion::where('id', $request->id)->firstOrFail();
+            $direcciones->nom_ref_uno = $request->nom_ref_uno;
+            $direcciones->nom_ref_dos = $request->nom_ref_dos;
+            $direcciones->lad_fij = $request->lad_fij;
+            $direcciones->tel_fij = $request->tel_fij;
+            $direcciones->ext = $request->ext;
+            $direcciones->lad_mov = $request->lad_mov;
+            $direcciones->tel_mov = $request->tel_mov;
+            $direcciones->calle = $request->calle;
+            $direcciones->no_ext = $request->no_ext;
+            $direcciones->no_int = $request->no_int;
+            $direcciones->save();
+            return response()->json(['data'=>[],"message"=>"Dirección actualizada con éxito","code"=>200]);
+        } catch (\Throwable $th) {
+            return response(["message"=>"error", 'error'=>$th]);
+        }
+        
     }
 
     /**
@@ -149,6 +167,16 @@ class DireccionController extends Controller
                 }
             }
             return response()->json(['data'=>$direccionesCompletas,"message"=>"Direcciones","code"=>200]);
+        } catch (\Throwable $th) {
+            return response(["message"=>"error", 'error'=>$th]);
+        }
+    }
+    public function direccionescotcomplete(Request $request){
+        try {
+            $cotcomplete = cotizaciones::where('id',$request->id)->firstOrFail();
+            $cotcomplete->direc_cot = 1;
+            $cotcomplete->save();
+            return response()->json(['data'=>[],"message"=>"Se ha confirmado que las direcciones cotizadas están completas","code"=>200]);
         } catch (\Throwable $th) {
             return response(["message"=>"error", 'error'=>$th]);
         }

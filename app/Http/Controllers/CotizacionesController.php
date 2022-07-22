@@ -164,6 +164,7 @@ class CotizacionesController extends Controller
                     $coti->created_at_cot = 'Apiecommerce';
                     $coti->created_at = date('Y-m-d H:i:s');
                     $coti->updated_at = date('Y-m-d H:i:s');
+                    $coti->direc = 0;
                     $serie = Serie::where('input', '=', 'Cotizaciones (Serie)' )->first();                    
                     $serie->ult_ser += 1;
                     $serie->save();
