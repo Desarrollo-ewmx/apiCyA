@@ -199,6 +199,7 @@ class CotizacionesController extends Controller
                         $item['serie']=$cot[$a]['serie'];
                         $item['arcones_totales']=$cot[$a]['tot_arm'];
                         $item['fecha']=$cot[$a]['created_at'];
+                        $item['direc_cot']=$cot[$a]['direc_cot'];
                         $item['arcones']=[];
                         $armados=carmados::where('cotizacion_id',$cot[$a]->id)->get();
                         for($b=0;$b<count($armados);$b++){
@@ -329,6 +330,7 @@ class CotizacionesController extends Controller
                         $item['arcones_totales']=$cot[$a]['tot_arm'];
                         $item['fecha']=$cot[$a]['created_at'];
                         $item['user_id']=$cot[$a]['user_id'];
+                        $item['direc_cot']=$cot[$a]['direc_cot'];
                         $item['arcones']=[];
                         $armados=carmados::where('cotizacion_id',$cot[$a]->id)->get();
                         for($b=0;$b<count($armados);$b++){
